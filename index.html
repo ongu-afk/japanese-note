@@ -23,18 +23,8 @@
   .header-flag { font-size: 28px; }
   .header-title { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
   .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
-  .btn-backup { background: #27272a; border: 1.5px solid #3f3f46; border-radius: 10px; padding: 7px 12px; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
   .header-hero .header-count { color: rgba(255,255,255,0.72); }
-  .header-hero .btn-backup { background: rgba(17,17,19,0.24); border-color: rgba(255,255,255,0.28); color: #fff; }
-  .auth-box { margin-top: 14px; background: #18181b; border: 1px solid #2d2d30; border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .header-hero .auth-box { background: rgba(17,17,19,0.24); border-color: rgba(255,255,255,0.20); }
-  .auth-main { min-width: 0; }
-  .auth-name { color: #e4e4e7; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .auth-status { color: #71717a; font-size: 12px; margin-top: 3px; }
-  .header-hero .auth-name { color: #fff; }
-  .header-hero .auth-status { color: rgba(255,255,255,0.72); }
-  .auth-btn { background: #fff; border: none; border-radius: 10px; padding: 8px 12px; color: #18181b; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
-  .auth-btn.logout { background: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; }
+  .auth-btn { background: rgba(17,17,19,0.24); border: 1px solid rgba(255,255,255,0.28); border-radius: 10px; padding: 7px 11px; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
   body.auth-locked .header, body.auth-locked .cards, body.auth-locked .fab { display: none; }
   .login-gate { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; padding: 24px; z-index: 200; }
   body.auth-locked .login-gate { display: flex; }
@@ -113,14 +103,7 @@
           <div class="header-count" id="count">0개의 회화 표현</div>
         </div>
       </div>
-      <button class="btn-backup" onclick="handleExport()">💾 백업</button>
-    </div>
-    <div class="auth-box">
-      <div class="auth-main">
-        <div class="auth-name" id="authName">로그인하지 않음</div>
-        <div class="auth-status" id="authStatus">Google 로그인하면 Firebase에 자동 저장됩니다</div>
-      </div>
-      <button class="auth-btn" id="authButton" onclick="handleAuth()">Google 로그인</button>
+      <button class="auth-btn" id="authButton" onclick="handleAuth()">로그아웃</button>
     </div>
   </div>
   <div class="search-wrap">
@@ -187,12 +170,12 @@ function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(phrases));}
 function userPhrasesRef(){return collection(db,"users",currentUser.uid,"phrases");}
 function phraseRef(id){return doc(db,"users",currentUser.uid,"phrases",String(id));}
 function cleanPhrase(p){return{id:p.id,japanese:p.japanese||"",reading:p.reading||"",korean:p.korean||"",source:p.source||"",note:p.note||"",tags:Array.isArray(p.tags)?p.tags:[],createdAt:p.createdAt||Date.now(),updatedAt:Date.now(),syncedAt:serverTimestamp()};}
-function setSyncStatus(text){document.getElementById("authStatus").textContent=text;}
+function setSyncStatus(text){console.log(text);}
 async function upsertCloudPhrase(p){if(!currentUser)return;try{setSyncStatus("Firebase에 저장 중...");await setDoc(phraseRef(p.id),cleanPhrase(p),{merge:true});setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 저장 실패 - 로컬에는 저장됨");}}
 async function deleteCloudPhrase(id){if(!currentUser)return;try{setSyncStatus("Firebase에서 삭제 중...");await deleteDoc(phraseRef(id));setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 삭제 실패 - 로컬에는 반영됨");}}
 async function uploadAllToCloud(){if(!currentUser)return;try{setSyncStatus("기존 로컬 데이터를 Firebase로 업로드 중...");await Promise.all(phrases.map((p)=>setDoc(phraseRef(p.id),cleanPhrase(p),{merge:true})));setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 업로드 실패");}}
 async function loadCloudPhrases(){if(!currentUser)return;try{setSyncStatus("Firebase에서 불러오는 중...");const snap=await getDocs(userPhrasesRef());if(snap.empty){if(hasLocalData&&phrases.length>0)await uploadAllToCloud();else setSyncStatus("Firebase 자동 저장 준비됨");return;}phrases=snap.docs.map((d)=>d.data()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));save();openCards.clear();render();setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 불러오기 실패 - 로컬 데이터 사용 중");}}
-function updateAuthUi(){const btn=document.getElementById("authButton");const name=document.getElementById("authName");if(currentUser){document.body.classList.remove("auth-locked");name.textContent=currentUser.displayName||currentUser.email||"Google 사용자";btn.textContent="로그아웃";btn.classList.add("logout");}else{document.body.classList.add("auth-locked");name.textContent="로그인하지 않음";btn.textContent="Google 로그인";btn.classList.remove("logout");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
+function updateAuthUi(){const btn=document.getElementById("authButton");if(currentUser){document.body.classList.remove("auth-locked");btn.textContent="로그아웃";}else{document.body.classList.add("auth-locked");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
 async function handleAuth(){try{if(currentUser)await signOut(auth);else await signInWithPopup(auth,provider);}catch(e){console.error(e);setSyncStatus("로그인 처리 실패");}}
 function getAllTags(){const s=new Set();phrases.forEach(p=>p.tags.forEach(t=>s.add(t)));return[...s].sort();}
 function highlight(text){if(!query||!text)return escHtml(text||"");const idx=text.toLowerCase().indexOf(query.toLowerCase());if(idx===-1)return escHtml(text);return escHtml(text.slice(0,idx))+`<mark>${escHtml(text.slice(idx,idx+query.length))}</mark>`+escHtml(text.slice(idx+query.length));}
