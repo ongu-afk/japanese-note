@@ -16,17 +16,23 @@
   body { background: #111113; font-family: "Apple SD Gothic Neo", "Pretendard", sans-serif; color: #fff; max-width: 500px; margin: 0 auto; padding-bottom: 100px; min-height: 100vh; }
   input { font-family: inherit; }
   button { font-family: inherit; }
-  .header { padding: 48px 20px 0; }
+  .header { padding: 0 20px; }
+  .header-hero { margin: 0 -20px; padding: 48px 20px 18px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 0 0 24px 24px; }
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
   .header-left { display: flex; align-items: center; gap: 10px; }
   .header-flag { font-size: 28px; }
   .header-title { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
   .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
   .btn-backup { background: #27272a; border: 1.5px solid #3f3f46; border-radius: 10px; padding: 7px 12px; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .header-hero .header-count { color: rgba(255,255,255,0.72); }
+  .header-hero .btn-backup { background: rgba(17,17,19,0.24); border-color: rgba(255,255,255,0.28); color: #fff; }
   .auth-box { margin-top: 14px; background: #18181b; border: 1px solid #2d2d30; border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .header-hero .auth-box { background: rgba(17,17,19,0.24); border-color: rgba(255,255,255,0.20); }
   .auth-main { min-width: 0; }
   .auth-name { color: #e4e4e7; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .auth-status { color: #71717a; font-size: 12px; margin-top: 3px; }
+  .header-hero .auth-name { color: #fff; }
+  .header-hero .auth-status { color: rgba(255,255,255,0.72); }
   .auth-btn { background: #fff; border: none; border-radius: 10px; padding: 8px 12px; color: #18181b; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
   .auth-btn.logout { background: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; }
   body.auth-locked .header, body.auth-locked .cards, body.auth-locked .fab { display: none; }
@@ -98,22 +104,24 @@
   </div>
 </div>
 <div class="header">
-  <div class="header-top">
-    <div class="header-left">
-      <span class="header-flag">🇯🇵</span>
-      <div>
-        <div class="header-title">나의 일본어 노트</div>
-        <div class="header-count" id="count">0개의 회화 표현</div>
+  <div class="header-hero">
+    <div class="header-top">
+      <div class="header-left">
+        <span class="header-flag">🇯🇵</span>
+        <div>
+          <div class="header-title">나의 일본어 노트</div>
+          <div class="header-count" id="count">0개의 회화 표현</div>
+        </div>
       </div>
+      <button class="btn-backup" onclick="handleExport()">💾 백업</button>
     </div>
-    <button class="btn-backup" onclick="handleExport()">💾 백업</button>
-  </div>
-  <div class="auth-box">
-    <div class="auth-main">
-      <div class="auth-name" id="authName">로그인하지 않음</div>
-      <div class="auth-status" id="authStatus">Google 로그인하면 Firebase에 자동 저장됩니다</div>
+    <div class="auth-box">
+      <div class="auth-main">
+        <div class="auth-name" id="authName">로그인하지 않음</div>
+        <div class="auth-status" id="authStatus">Google 로그인하면 Firebase에 자동 저장됩니다</div>
+      </div>
+      <button class="auth-btn" id="authButton" onclick="handleAuth()">Google 로그인</button>
     </div>
-    <button class="auth-btn" id="authButton" onclick="handleAuth()">Google 로그인</button>
   </div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
