@@ -23,6 +23,12 @@
   .header-title { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
   .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
   .btn-backup { background: #27272a; border: 1.5px solid #3f3f46; border-radius: 10px; padding: 7px 12px; color: #a1a1aa; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .auth-box { margin-top: 14px; background: #18181b; border: 1px solid #2d2d30; border-radius: 14px; padding: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .auth-main { min-width: 0; }
+  .auth-name { color: #e4e4e7; font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .auth-status { color: #71717a; font-size: 12px; margin-top: 3px; }
+  .auth-btn { background: #fff; border: none; border-radius: 10px; padding: 8px 12px; color: #18181b; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+  .auth-btn.logout { background: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; }
   .search-wrap { position: relative; margin: 18px 0 14px; }
   .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #52525b; font-size: 15px; pointer-events: none; }
   .search-input { width: 100%; background: #1c1c1f; border: 1.5px solid #2d2d30; border-radius: 12px; padding: 11px 36px 11px 38px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.15s; }
@@ -86,6 +92,13 @@
     </div>
     <button class="btn-backup" onclick="handleExport()">💾 백업</button>
   </div>
+  <div class="auth-box">
+    <div class="auth-main">
+      <div class="auth-name" id="authName">로그인하지 않음</div>
+      <div class="auth-status" id="authStatus">Google 로그인하면 Firebase에 자동 저장됩니다</div>
+    </div>
+    <button class="auth-btn" id="authButton" onclick="handleAuth()">Google 로그인</button>
+  </div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input class="search-input" id="searchInput" placeholder="일본어 또는 한국어로 검색" oninput="onSearch()" />
@@ -117,15 +130,46 @@
     <button class="btn-save" id="btnSave" onclick="handleSave()" disabled>저장하기</button>
   </div>
 </div>
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDyKiervhmEgcwDxCCtzl85AFjr_-aZn6U",
+  authDomain: "japanese-note-1dc3e.firebaseapp.com",
+  projectId: "japanese-note-1dc3e",
+  storageBucket: "japanese-note-1dc3e.firebasestorage.app",
+  messagingSenderId: "437184948701",
+  appId: "1:437184948701:web:42b44bdf60adefa3772e34",
+  measurementId: "G-DKT421YQHE"
+};
+
+const app = initializeApp(firebaseConfig);
+isAnalyticsSupported().then((ok) => { if (ok) getAnalytics(app); }).catch(() => {});
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
+
 const STORAGE_KEY="jp-study-phrases";
 const TAG_COLORS=["#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#f97316"];
 const ALL_TAG_COLOR="#4f46e5";
 const SAMPLE=[{id:1,japanese:"いただきます",reading:"いただきます",korean:"잘 먹겠습니다 (식사 전 인사)",source:"일상 회화",tags:["식사","인사"],note:"식사 시작 전 반드시 쓰는 표현",createdAt:Date.now()-10000},{id:2,japanese:"お疲れ様でした",reading:"おつかれさまでした",korean:"수고하셨습니다",source:"유튜브 - 직장 드라마",tags:["직장","인사"],note:"퇴근할 때 동료에게",createdAt:Date.now()-8000},{id:3,japanese:"すみません、〜はどこですか？",reading:"すみません、〜はどこですか？",korean:"저기요, ~은 어디에 있나요?",source:"여행 일본어 사이트",tags:["여행","길 찾기"],note:"〜 자리에 장소명 넣기",createdAt:Date.now()-5000}];
-let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set();
+let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set(),currentUser=null,hasLocalData=false;
 function tagColor(tag){let hash=0;for(let i=0;i<tag.length;i++)hash=tag.charCodeAt(i)+((hash<<5)-hash);return TAG_COLORS[Math.abs(hash)%TAG_COLORS.length];}
-function load(){try{const raw=localStorage.getItem(STORAGE_KEY);phrases=raw?JSON.parse(raw):SAMPLE;}catch{phrases=SAMPLE;}render();}
+function load(){try{const raw=localStorage.getItem(STORAGE_KEY);hasLocalData=!!raw;phrases=raw?JSON.parse(raw):SAMPLE;}catch{phrases=SAMPLE;}render();}
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(phrases));}
+function userPhrasesRef(){return collection(db,"users",currentUser.uid,"phrases");}
+function phraseRef(id){return doc(db,"users",currentUser.uid,"phrases",String(id));}
+function cleanPhrase(p){return{id:p.id,japanese:p.japanese||"",reading:p.reading||"",korean:p.korean||"",source:p.source||"",note:p.note||"",tags:Array.isArray(p.tags)?p.tags:[],createdAt:p.createdAt||Date.now(),updatedAt:Date.now(),syncedAt:serverTimestamp()};}
+function setSyncStatus(text){document.getElementById("authStatus").textContent=text;}
+async function upsertCloudPhrase(p){if(!currentUser)return;try{setSyncStatus("Firebase에 저장 중...");await setDoc(phraseRef(p.id),cleanPhrase(p),{merge:true});setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 저장 실패 - 로컬에는 저장됨");}}
+async function deleteCloudPhrase(id){if(!currentUser)return;try{setSyncStatus("Firebase에서 삭제 중...");await deleteDoc(phraseRef(id));setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 삭제 실패 - 로컬에는 반영됨");}}
+async function uploadAllToCloud(){if(!currentUser)return;try{setSyncStatus("기존 로컬 데이터를 Firebase로 업로드 중...");await Promise.all(phrases.map((p)=>setDoc(phraseRef(p.id),cleanPhrase(p),{merge:true})));setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 업로드 실패");}}
+async function loadCloudPhrases(){if(!currentUser)return;try{setSyncStatus("Firebase에서 불러오는 중...");const snap=await getDocs(userPhrasesRef());if(snap.empty){if(hasLocalData&&phrases.length>0)await uploadAllToCloud();else setSyncStatus("Firebase 자동 저장 준비됨");return;}phrases=snap.docs.map((d)=>d.data()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));save();openCards.clear();render();setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 불러오기 실패 - 로컬 데이터 사용 중");}}
+function updateAuthUi(){const btn=document.getElementById("authButton");const name=document.getElementById("authName");if(currentUser){name.textContent=currentUser.displayName||currentUser.email||"Google 사용자";btn.textContent="로그아웃";btn.classList.add("logout");}else{name.textContent="로그인하지 않음";btn.textContent="Google 로그인";btn.classList.remove("logout");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
+async function handleAuth(){try{if(currentUser)await signOut(auth);else await signInWithPopup(auth,provider);}catch(e){console.error(e);setSyncStatus("로그인 처리 실패");}}
 function getAllTags(){const s=new Set();phrases.forEach(p=>p.tags.forEach(t=>s.add(t)));return[...s].sort();}
 function highlight(text){if(!query||!text)return escHtml(text||"");const idx=text.toLowerCase().indexOf(query.toLowerCase());if(idx===-1)return escHtml(text);return escHtml(text.slice(0,idx))+`<mark>${escHtml(text.slice(idx,idx+query.length))}</mark>`+escHtml(text.slice(idx+query.length));}
 function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
@@ -143,10 +187,12 @@ function renderModalTags(){const allTags=getAllTags();const merged=[...new Set([
 function toggleModalTag(t){if(selectedTags.includes(t))selectedTags=selectedTags.filter(x=>x!==t);else selectedTags.push(t);renderModalTags();}
 function addTagFromInput(){const val=document.getElementById("tagInput").value.trim();if(val&&!selectedTags.includes(val))selectedTags.push(val);document.getElementById("tagInput").value="";renderModalTags();}
 function checkValid(){const jp=document.getElementById("f-japanese").value.trim();const kr=document.getElementById("f-korean").value.trim();document.getElementById("btnSave").disabled=!(jp&&kr);}
-function handleSave(){const jp=document.getElementById("f-japanese").value.trim();const kr=document.getElementById("f-korean").value.trim();if(!jp||!kr)return;const form={japanese:jp,reading:document.getElementById("f-reading").value.trim(),korean:kr,source:document.getElementById("f-source").value.trim(),note:document.getElementById("f-note").value.trim(),tags:[...selectedTags]};if(editingId){phrases=phrases.map(p=>p.id===editingId?{...p,...form}:p);}else{phrases.unshift({...form,id:Date.now(),createdAt:Date.now()});}save();closeModal();render();}
-function deletePhrase(id){if(confirm("삭제할까요?")){phrases=phrases.filter(p=>p.id!==id);openCards.delete(id);save();render();}}
+function handleSave(){const jp=document.getElementById("f-japanese").value.trim();const kr=document.getElementById("f-korean").value.trim();if(!jp||!kr)return;const form={japanese:jp,reading:document.getElementById("f-reading").value.trim(),korean:kr,source:document.getElementById("f-source").value.trim(),note:document.getElementById("f-note").value.trim(),tags:[...selectedTags]};let savedPhrase;if(editingId){phrases=phrases.map(p=>{if(p.id!==editingId)return p;savedPhrase={...p,...form,updatedAt:Date.now()};return savedPhrase;});}else{savedPhrase={...form,id:Date.now(),createdAt:Date.now(),updatedAt:Date.now()};phrases.unshift(savedPhrase);}save();closeModal();render();upsertCloudPhrase(savedPhrase);}
+function deletePhrase(id){if(confirm("삭제할까요?")){phrases=phrases.filter(p=>p.id!==id);openCards.delete(id);save();render();deleteCloudPhrase(id);}}
 function handleExport(){const data=JSON.stringify(phrases,null,2);const blob=new Blob([data],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="일본어노트_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);}
 load();
+onAuthStateChanged(auth,(user)=>{currentUser=user;updateAuthUi();if(user)loadCloudPhrases();});
+Object.assign(window,{handleAuth,handleExport,onSearch,clearSearch,setTag,toggleCard,openModal,closeModal,closeModalIfBg,toggleModalTag,addTagFromInput,checkValid,handleSave,deletePhrase});
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").catch(()=>{});});}
 </script>
 </body>
