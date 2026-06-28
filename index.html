@@ -19,8 +19,13 @@
   .header { padding: 0 20px; }
   .header-hero { margin: 0 -20px; padding: 48px 20px 18px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 0 0 24px 24px; }
   .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-  .header-left { display: flex; align-items: center; gap: 10px; }
-  .header-flag { font-size: 28px; }
+  .header-left { display: flex; align-items: center; gap: 10px; position: relative; }
+  .language-selector { position: relative; }
+  .header-flag { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; padding: 0; line-height: 1; }
+  .language-menu { position: absolute; top: 38px; left: 0; background: #18181b; border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 6px; min-width: 142px; box-shadow: 0 12px 36px rgba(0,0,0,0.45); display: none; z-index: 80; }
+  .language-menu.open { display: block; }
+  .language-option { width: 100%; background: transparent; border: none; border-radius: 10px; padding: 8px 10px; color: #fff; font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .language-option:hover, .language-option.active { background: rgba(255,255,255,0.12); }
   .header-title { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
   .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
   .header-hero .header-count { color: rgba(255,255,255,0.72); }
@@ -102,9 +107,12 @@
   <div class="header-hero">
     <div class="header-top">
       <div class="header-left">
-        <span class="header-flag">🇯🇵</span>
+        <div class="language-selector">
+          <button class="header-flag" id="languageButton" onclick="toggleLanguageMenu(event)">🇯🇵</button>
+          <div class="language-menu" id="languageMenu"></div>
+        </div>
         <div>
-          <div class="header-title">나의 일본어 노트</div>
+          <div class="header-title" id="headerTitle">나의 일본어 노트</div>
           <div class="header-count" id="count">0개의 회화 표현</div>
         </div>
       </div>
@@ -126,8 +134,8 @@
       <span class="modal-title" id="modalTitle">새 회화 추가</span>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
-    <div class="field"><label>일본어 원문 *</label><input class="jp" id="f-japanese" placeholder="예: お疲れ様でした" oninput="checkValid()" /></div>
-    <div class="field"><label>읽는 법 (히라가나)</label><input id="f-reading" placeholder="예: おつかれさまでした" style="font-family:'Noto Sans JP',sans-serif" /></div>
+    <div class="field"><label id="japaneseLabel">일본어 원문 *</label><input class="jp" id="f-japanese" placeholder="예: お疲れ様でした" oninput="checkValid()" /></div>
+    <div class="field"><label id="readingLabel">읽는 법 (히라가나)</label><input id="f-reading" placeholder="예: おつかれさまでした" style="font-family:'Noto Sans JP',sans-serif" /></div>
     <div class="field"><label>한국어 뜻 *</label><input id="f-korean" placeholder="예: 수고하셨습니다" oninput="checkValid()" /></div>
     <div class="field"><label>출처 (유튜브 채널, 사이트 등)</label><input id="f-source" placeholder="예: 유튜브 - 日本語の森" /></div>
     <div class="field"><label>메모</label><input id="f-note" placeholder="언제 쓰는지, 뉘앙스 등" /></div>
@@ -166,19 +174,35 @@ provider.setCustomParameters({ prompt: "select_account" });
 const db = getFirestore(app);
 
 const STORAGE_KEY="jp-study-phrases";
+const LANGUAGE_KEY="jp-note-language";
+const LANGUAGES={
+  english:{flag:"🇺🇸",name:"영어",reading:"발음",gradient:"linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",samplePlaceholder:"예: Take care"},
+  chinese:{flag:"🇨🇳",name:"중국어",reading:"병음",gradient:"linear-gradient(135deg, #dc2626 0%, #f97316 100%)",samplePlaceholder:"예: 你好"},
+  japanese:{flag:"🇯🇵",name:"일본어",reading:"히라가나",gradient:"linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",samplePlaceholder:"예: お疲れ様でした"},
+  spanish:{flag:"🇪🇸",name:"스페인어",reading:"발음",gradient:"linear-gradient(135deg, #f97316 0%, #f59e0b 100%)",samplePlaceholder:"예: Buenos días"},
+  french:{flag:"🇫🇷",name:"프랑스어",reading:"발음",gradient:"linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)",samplePlaceholder:"예: Bonjour"}
+};
 const TAG_COLORS=["#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#f97316"];
 const ALL_TAG_COLOR="#4f46e5";
 const SAMPLE=[{id:1,japanese:"いただきます",reading:"いただきます",korean:"잘 먹겠습니다 (식사 전 인사)",source:"일상 회화",tags:["식사","인사"],note:"식사 시작 전 반드시 쓰는 표현",createdAt:Date.now()-10000},{id:2,japanese:"お疲れ様でした",reading:"おつかれさまでした",korean:"수고하셨습니다",source:"유튜브 - 직장 드라마",tags:["직장","인사"],note:"퇴근할 때 동료에게",createdAt:Date.now()-8000},{id:3,japanese:"すみません、〜はどこですか？",reading:"すみません、〜はどこですか？",korean:"저기요, ~은 어디에 있나요?",source:"여행 일본어 사이트",tags:["여행","길 찾기"],note:"〜 자리에 장소명 넣기",createdAt:Date.now()-5000}];
-let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set(),currentUser=null,hasLocalData=false,authReady=false,cloudUnsubscribe=null;
+let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set(),currentUser=null,hasLocalData=false,authReady=false,cloudUnsubscribe=null,currentLanguage=localStorage.getItem(LANGUAGE_KEY)||"japanese";
+if(!LANGUAGES[currentLanguage])currentLanguage="japanese";
+function language(){return LANGUAGES[currentLanguage];}
+function storageKey(){return `${STORAGE_KEY}-${currentLanguage}`;}
 function tagColor(tag){let hash=0;for(let i=0;i<tag.length;i++)hash=tag.charCodeAt(i)+((hash<<5)-hash);return TAG_COLORS[Math.abs(hash)%TAG_COLORS.length];}
-function load(){try{const raw=localStorage.getItem(STORAGE_KEY);hasLocalData=!!raw;phrases=raw?JSON.parse(raw):SAMPLE;}catch{phrases=SAMPLE;}render();}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(phrases));}
-function userPhrasesRef(){return collection(db,"users",currentUser.uid,"phrases");}
-function phraseRef(id){return doc(db,"users",currentUser.uid,"phrases",String(id));}
+function load(){try{const raw=localStorage.getItem(storageKey())||(currentLanguage==="japanese"?localStorage.getItem(STORAGE_KEY):null);hasLocalData=!!raw;phrases=raw?JSON.parse(raw):currentLanguage==="japanese"?SAMPLE:[];}catch{phrases=currentLanguage==="japanese"?SAMPLE:[];}render();}
+function save(){localStorage.setItem(storageKey(),JSON.stringify(phrases));}
+function userPhrasesRef(){return collection(db,"users",currentUser.uid,"languages",currentLanguage,"phrases");}
+function phraseRef(id){return doc(db,"users",currentUser.uid,"languages",currentLanguage,"phrases",String(id));}
 function cleanPhrase(p){return{id:p.id,japanese:p.japanese||"",reading:p.reading||"",korean:p.korean||"",source:p.source||"",note:p.note||"",tags:Array.isArray(p.tags)?p.tags:[],createdAt:p.createdAt||Date.now(),updatedAt:Date.now(),syncedAt:serverTimestamp()};}
 function setSyncStatus(text){console.log("[AUTH]",text);}
 function authLog(step,detail={}){console.log("[AUTH]",step,detail);}
 function authError(step,error){console.error("[AUTH]",step,{code:error?.code,message:error?.message,name:error?.name,error});}
+function renderLanguageMenu(){const menu=document.getElementById("languageMenu");menu.innerHTML=Object.entries(LANGUAGES).map(([key,lang])=>`<button class="language-option ${key===currentLanguage?"active":""}" onclick="selectLanguage('${key}')"><span>${lang.flag}</span><span>${lang.name}</span></button>`).join("");}
+function updateLanguageUi(){const lang=language();document.title=`${lang.flag} 나의 ${lang.name} 노트`;document.querySelector(".header-hero").style.background=lang.gradient;document.getElementById("languageButton").textContent=lang.flag;document.getElementById("headerTitle").textContent=`나의 ${lang.name} 노트`;document.getElementById("searchInput").placeholder=`${lang.name} 또는 한국어로 검색`;document.getElementById("japaneseLabel").textContent=`${lang.name} 원문 *`;document.getElementById("readingLabel").textContent=`읽는 법 (${lang.reading})`;document.getElementById("f-japanese").placeholder=lang.samplePlaceholder;document.getElementById("f-reading").placeholder=lang.reading==="병음"?"예: nǐ hǎo":lang.reading==="히라가나"?"예: おつかれさまでした":"예: 발음 메모";renderLanguageMenu();}
+function toggleLanguageMenu(event){event.stopPropagation();document.getElementById("languageMenu").classList.toggle("open");}
+function closeLanguageMenu(){document.getElementById("languageMenu").classList.remove("open");}
+function selectLanguage(key){if(!LANGUAGES[key]||key===currentLanguage){closeLanguageMenu();return;}authLog("language selected",{from:currentLanguage,to:key});currentLanguage=key;localStorage.setItem(LANGUAGE_KEY,currentLanguage);closeLanguageMenu();query="";activeTag=null;openCards.clear();document.getElementById("searchInput").value="";document.getElementById("searchClear").style.display="none";updateLanguageUi();load();if(currentUser){stopCloudSync();startCloudSync();}}
 function updateAuthUi(){if(!authReady){authLog("updateAuthUi skipped (auth not ready)");return;}const btn=document.getElementById("authButton");if(currentUser){authLog("updateAuthUi signed in",{uid:currentUser.uid,email:currentUser.email,displayName:currentUser.displayName});document.body.classList.remove("auth-locked","auth-pending");btn.textContent="로그아웃";}else{authLog("updateAuthUi signed out -> show login gate");document.body.classList.remove("auth-pending");document.body.classList.add("auth-locked");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
 async function handleAuth(){try{if(currentUser){authLog("handleAuth logout start",{uid:currentUser.uid});await signOut(auth);authLog("handleAuth logout done");return;}authLog("handleAuth popup start",{href:location.href,authDomain:firebaseConfig.authDomain,standalone:window.matchMedia("(display-mode: standalone)").matches});await setPersistence(auth,browserLocalPersistence);authLog("handleAuth persistence set");const result=await signInWithPopup(auth,provider);authLog("handleAuth popup success",{uid:result.user.uid,email:result.user.email,providerId:result.providerId,operationType:result.operationType});}catch(e){authError("handleAuth popup failed",e);setSyncStatus("로그인 처리 실패: "+(e?.code||e?.message||"unknown"));}}
 async function initAuth(){authLog("initAuth start",{href:location.href,search:location.search,hash:location.hash,authDomain:firebaseConfig.authDomain});try{authLog("initAuth setPersistence start");await setPersistence(auth,browserLocalPersistence);authLog("initAuth setPersistence done");}catch(e){authError("initAuth setPersistence failed",e);}authLog("initAuth onAuthStateChanged subscribe");onAuthStateChanged(auth,(user)=>{authLog("onAuthStateChanged",{hasUser:!!user,uid:user?.uid||null,email:user?.email||null,authReadyBefore:authReady});stopCloudSync();currentUser=user;authReady=true;if(user){authLog("onAuthStateChanged start cloud sync",{uid:user.uid});startCloudSync();}else{phrases=[];save();render();updateAuthUi();}});authLog("initAuth currentUser after setup",{uid:auth.currentUser?.uid||null,email:auth.currentUser?.email||null});}
@@ -206,9 +230,11 @@ function checkValid(){const jp=document.getElementById("f-japanese").value.trim(
 function handleSave(){const jp=document.getElementById("f-japanese").value.trim();const kr=document.getElementById("f-korean").value.trim();if(!jp||!kr)return;const form={japanese:jp,reading:document.getElementById("f-reading").value.trim(),korean:kr,source:document.getElementById("f-source").value.trim(),note:document.getElementById("f-note").value.trim(),tags:[...selectedTags]};let savedPhrase;if(editingId){phrases=phrases.map(p=>{if(p.id!==editingId)return p;savedPhrase={...p,...form,updatedAt:Date.now()};return savedPhrase;});}else{savedPhrase={...form,id:Date.now(),createdAt:Date.now(),updatedAt:Date.now()};phrases.unshift(savedPhrase);}save();closeModal();render();upsertCloudPhrase(savedPhrase);}
 function deletePhrase(id){if(confirm("삭제할까요?")){phrases=phrases.filter(p=>p.id!==id);openCards.delete(id);save();render();deleteCloudPhrase(id);}}
 function handleExport(){const data=JSON.stringify(phrases,null,2);const blob=new Blob([data],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="일본어노트_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);}
+updateLanguageUi();
 load();
 initAuth();
-Object.assign(window,{handleAuth,handleExport,onSearch,clearSearch,setTag,toggleCard,openModal,closeModal,closeModalIfBg,toggleModalTag,addTagFromInput,checkValid,handleSave,deletePhrase});
+document.addEventListener("click",closeLanguageMenu);
+Object.assign(window,{handleAuth,handleExport,onSearch,clearSearch,setTag,toggleCard,openModal,closeModal,closeModalIfBg,toggleModalTag,addTagFromInput,checkValid,handleSave,deletePhrase,toggleLanguageMenu,selectLanguage});
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").then((reg)=>authLog("serviceWorker registered",{scope:reg.scope})).catch((e)=>authError("serviceWorker register failed",e));});}
 </script>
 </body>
