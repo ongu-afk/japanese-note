@@ -162,6 +162,7 @@ const app = initializeApp(firebaseConfig);
 isAnalyticsSupported().then((ok) => { if (ok) getAnalytics(app); }).catch(() => {});
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
 const db = getFirestore(app);
 
 const STORAGE_KEY="jp-study-phrases";
