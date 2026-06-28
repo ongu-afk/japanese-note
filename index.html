@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="일본어 노트">
+<meta name="apple-mobile-web-app-title" content="마이 프레이즈">
 <meta name="theme-color" content="#111113">
-<title>🇯🇵 나의 일본어 노트</title>
+<title>마이 프레이즈</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
@@ -35,12 +35,14 @@
   .auth-loading { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; color: #71717a; font-size: 14px; z-index: 150; }
   body.auth-pending .auth-loading { display: flex; }
   body.auth-locked .header, body.auth-locked .cards, body.auth-locked .fab { display: none; }
-  .login-gate { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; padding: 24px; z-index: 200; }
+  .login-gate { position: fixed; inset: 0; background: linear-gradient(160deg, #1e1b4b 0%, #4f46e5 100%); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 200; }
   body.auth-locked .login-gate { display: flex; }
-  .login-card { width: 100%; max-width: 360px; background: #18181b; border: 1px solid #2d2d30; border-radius: 24px; padding: 28px 22px; text-align: center; box-shadow: 0 12px 40px rgba(0,0,0,0.35); }
-  .login-icon { font-size: 46px; margin-bottom: 14px; }
-  .login-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
-  .login-sub { color: #a1a1aa; font-size: 14px; line-height: 1.5; margin-bottom: 22px; }
+  .login-card { width: 100%; max-width: 360px; text-align: center; }
+  .login-icon { width: 82px; height: 82px; margin: 0 auto 18px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.26); border-radius: 28px; display: grid; place-items: center; position: relative; box-shadow: 0 18px 48px rgba(0,0,0,0.24); }
+  .login-icon .bubble { font-size: 44px; line-height: 1; }
+  .login-icon .globe { position: absolute; right: 14px; bottom: 15px; font-size: 24px; line-height: 1; }
+  .login-title { font-size: 30px; font-weight: 900; letter-spacing: -0.8px; margin-bottom: 8px; }
+  .login-sub { color: rgba(255,255,255,0.78); font-size: 15px; line-height: 1.5; margin-bottom: 26px; }
   .login-btn { width: 100%; background: #fff; border: none; border-radius: 14px; padding: 13px 16px; color: #18181b; font-size: 15px; font-weight: 800; cursor: pointer; }
   .search-wrap { position: relative; margin: 18px 0 14px; }
   .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #52525b; font-size: 15px; pointer-events: none; }
@@ -97,9 +99,9 @@
 <div class="auth-loading" id="authLoading">로그인 확인 중...</div>
 <div class="login-gate">
   <div class="login-card">
-    <div class="login-icon">🇯🇵</div>
-    <div class="login-title">나의 일본어 노트</div>
-    <div class="login-sub">Google 계정으로 로그인해야 앱을 사용할 수 있습니다. 로그인 후 내 표현이 Firebase에 자동 저장됩니다.</div>
+    <div class="login-icon"><span class="bubble">💬</span><span class="globe">🌍</span></div>
+    <div class="login-title">마이 프레이즈</div>
+    <div class="login-sub">모든 언어를 한 곳에서</div>
     <button class="login-btn" onclick="handleAuth()">Google로 시작하기</button>
   </div>
 </div>
@@ -176,11 +178,11 @@ const db = getFirestore(app);
 const STORAGE_KEY="jp-study-phrases";
 const LANGUAGE_KEY="jp-note-language";
 const LANGUAGES={
-  english:{flag:"🇺🇸",name:"영어",reading:"발음",gradient:"linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",samplePlaceholder:"예: Take care"},
-  chinese:{flag:"🇨🇳",name:"중국어",reading:"병음",gradient:"linear-gradient(135deg, #dc2626 0%, #f97316 100%)",samplePlaceholder:"예: 你好"},
-  japanese:{flag:"🇯🇵",name:"일본어",reading:"히라가나",gradient:"linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",samplePlaceholder:"예: お疲れ様でした"},
-  spanish:{flag:"🇪🇸",name:"스페인어",reading:"발음",gradient:"linear-gradient(135deg, #f97316 0%, #f59e0b 100%)",samplePlaceholder:"예: Buenos días"},
-  french:{flag:"🇫🇷",name:"프랑스어",reading:"발음",gradient:"linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)",samplePlaceholder:"예: Bonjour"}
+  english:{flag:"🇺🇸",name:"영어",reading:"발음",gradient:"linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",samplePlaceholder:"예: Take care",sourcePlaceholder:"예: 유튜브 - English Addict"},
+  chinese:{flag:"🇨🇳",name:"중국어",reading:"병음",gradient:"linear-gradient(135deg, #dc2626 0%, #f97316 100%)",samplePlaceholder:"예: 你好",sourcePlaceholder:"예: 유튜브 - 慢速中文"},
+  japanese:{flag:"🇯🇵",name:"일본어",reading:"히라가나",gradient:"linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",samplePlaceholder:"예: お疲れ様でした",sourcePlaceholder:"예: 유튜브 - 日本語の森"},
+  spanish:{flag:"🇪🇸",name:"스페인어",reading:"발음",gradient:"linear-gradient(135deg, #f97316 0%, #f59e0b 100%)",samplePlaceholder:"예: Buenos días",sourcePlaceholder:"예: 유튜브 - Español con Juan"},
+  french:{flag:"🇫🇷",name:"프랑스어",reading:"발음",gradient:"linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)",samplePlaceholder:"예: Bonjour",sourcePlaceholder:"예: 유튜브 - Français Authentique"}
 };
 const TAG_COLORS=["#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#f97316"];
 const ALL_TAG_COLOR="#4f46e5";
@@ -199,7 +201,7 @@ function setSyncStatus(text){console.log("[AUTH]",text);}
 function authLog(step,detail={}){console.log("[AUTH]",step,detail);}
 function authError(step,error){console.error("[AUTH]",step,{code:error?.code,message:error?.message,name:error?.name,error});}
 function renderLanguageMenu(){const menu=document.getElementById("languageMenu");menu.innerHTML=Object.entries(LANGUAGES).map(([key,lang])=>`<button class="language-option ${key===currentLanguage?"active":""}" onclick="selectLanguage('${key}')"><span>${lang.flag}</span><span>${lang.name}</span></button>`).join("");}
-function updateLanguageUi(){const lang=language();document.title=`${lang.flag} 나의 ${lang.name} 노트`;document.querySelector(".header-hero").style.background=lang.gradient;document.getElementById("languageButton").textContent=lang.flag;document.getElementById("headerTitle").textContent=`나의 ${lang.name} 노트`;document.getElementById("searchInput").placeholder=`${lang.name} 또는 한국어로 검색`;document.getElementById("japaneseLabel").textContent=`${lang.name} 원문 *`;document.getElementById("readingLabel").textContent=`읽는 법 (${lang.reading})`;document.getElementById("f-japanese").placeholder=lang.samplePlaceholder;document.getElementById("f-reading").placeholder=lang.reading==="병음"?"예: nǐ hǎo":lang.reading==="히라가나"?"예: おつかれさまでした":"예: 발음 메모";renderLanguageMenu();}
+function updateLanguageUi(){const lang=language();document.title=`${lang.flag} 나의 ${lang.name} 노트`;document.querySelector(".header-hero").style.background=lang.gradient;document.getElementById("languageButton").textContent=lang.flag;document.getElementById("headerTitle").textContent=`나의 ${lang.name} 노트`;document.getElementById("searchInput").placeholder=`${lang.name} 또는 한국어로 검색`;document.getElementById("japaneseLabel").textContent=`${lang.name} 원문 *`;document.getElementById("readingLabel").textContent=`읽는 법 (${lang.reading})`;document.getElementById("f-japanese").placeholder=lang.samplePlaceholder;document.getElementById("f-reading").placeholder=lang.reading==="병음"?"예: nǐ hǎo":lang.reading==="히라가나"?"예: おつかれさまでした":"예: 발음 메모";document.getElementById("f-source").placeholder=lang.sourcePlaceholder;renderLanguageMenu();}
 function toggleLanguageMenu(event){event.stopPropagation();document.getElementById("languageMenu").classList.toggle("open");}
 function closeLanguageMenu(){document.getElementById("languageMenu").classList.remove("open");}
 function selectLanguage(key){if(!LANGUAGES[key]||key===currentLanguage){closeLanguageMenu();return;}authLog("language selected",{from:currentLanguage,to:key});currentLanguage=key;localStorage.setItem(LANGUAGE_KEY,currentLanguage);closeLanguageMenu();query="";activeTag=null;openCards.clear();document.getElementById("searchInput").value="";document.getElementById("searchClear").style.display="none";updateLanguageUi();load();if(currentUser){stopCloudSync();startCloudSync();}}
