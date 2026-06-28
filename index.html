@@ -17,8 +17,8 @@
   input { font-family: inherit; }
   button { font-family: inherit; }
   .header { padding: 0 20px; }
-  .header-hero { margin: 0 -20px; padding: 42px 20px 18px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 0 0 24px 24px; }
-  .header-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 18px; }
+  .header-hero { margin: 0 -20px; padding: 16px 20px 14px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 0 0 22px 22px; }
+  .header-actions { display: flex; justify-content: flex-end; margin-bottom: 8px; }
   .header-main { display: flex; align-items: center; justify-content: space-between; }
   .header-left { display: flex; align-items: center; gap: 10px; position: relative; }
   .language-selector { position: relative; }
@@ -31,7 +31,7 @@
   .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
   .header-hero .header-count { color: rgba(255,255,255,0.72); }
   .header-action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16); border-radius: 10px; padding: 7px 11px; color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
-  .game-start-btn { min-width: 38px; }
+  .game-start-btn { background: transparent; border: none; color: #fff; font-size: 28px; line-height: 1; padding: 0 0 0 14px; cursor: pointer; opacity: 1; }
   body.auth-pending .header, body.auth-pending .cards, body.auth-pending .fab, body.auth-pending .game-overlay { display: none; }
   body.auth-pending .login-gate { display: none; }
   .auth-loading { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; color: #71717a; font-size: 14px; z-index: 150; }
@@ -136,7 +136,6 @@
 <div class="header">
   <div class="header-hero">
     <div class="header-actions">
-      <button class="header-action-btn game-start-btn" onclick="startGame()" title="연습 게임">🔥</button>
       <button class="header-action-btn" id="authButton" onclick="handleAuth()">로그아웃</button>
     </div>
     <div class="header-main">
@@ -150,6 +149,7 @@
           <div class="header-count" id="count">0개의 회화 표현</div>
         </div>
       </div>
+      <button class="game-start-btn" onclick="startGame()" title="연습 게임">🔥</button>
     </div>
   </div>
   <div class="search-wrap">
