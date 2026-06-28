@@ -25,6 +25,10 @@
   .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
   .header-hero .header-count { color: rgba(255,255,255,0.72); }
   .auth-btn { background: rgba(17,17,19,0.24); border: 1px solid rgba(255,255,255,0.28); border-radius: 10px; padding: 7px 11px; color: #fff; font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+  body.auth-pending .header, body.auth-pending .cards, body.auth-pending .fab { display: none; }
+  body.auth-pending .login-gate { display: none; }
+  .auth-loading { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; color: #71717a; font-size: 14px; z-index: 150; }
+  body.auth-pending .auth-loading { display: flex; }
   body.auth-locked .header, body.auth-locked .cards, body.auth-locked .fab { display: none; }
   .login-gate { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; padding: 24px; z-index: 200; }
   body.auth-locked .login-gate { display: flex; }
@@ -84,7 +88,8 @@
   mark { background: #fbbf24; color: #18181b; border-radius: 3px; padding: 0 1px; }
 </style>
 </head>
-<body class="auth-locked">
+<body class="auth-pending">
+<div class="auth-loading" id="authLoading">로그인 확인 중...</div>
 <div class="login-gate">
   <div class="login-card">
     <div class="login-icon">🇯🇵</div>
@@ -140,7 +145,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { getFirestore, collection, doc, getDocs, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -163,7 +168,7 @@ const STORAGE_KEY="jp-study-phrases";
 const TAG_COLORS=["#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#f97316"];
 const ALL_TAG_COLOR="#4f46e5";
 const SAMPLE=[{id:1,japanese:"いただきます",reading:"いただきます",korean:"잘 먹겠습니다 (식사 전 인사)",source:"일상 회화",tags:["식사","인사"],note:"식사 시작 전 반드시 쓰는 표현",createdAt:Date.now()-10000},{id:2,japanese:"お疲れ様でした",reading:"おつかれさまでした",korean:"수고하셨습니다",source:"유튜브 - 직장 드라마",tags:["직장","인사"],note:"퇴근할 때 동료에게",createdAt:Date.now()-8000},{id:3,japanese:"すみません、〜はどこですか？",reading:"すみません、〜はどこですか？",korean:"저기요, ~은 어디에 있나요?",source:"여행 일본어 사이트",tags:["여행","길 찾기"],note:"〜 자리에 장소명 넣기",createdAt:Date.now()-5000}];
-let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set(),currentUser=null,hasLocalData=false;
+let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set(),currentUser=null,hasLocalData=false,authReady=false;
 function tagColor(tag){let hash=0;for(let i=0;i<tag.length;i++)hash=tag.charCodeAt(i)+((hash<<5)-hash);return TAG_COLORS[Math.abs(hash)%TAG_COLORS.length];}
 function load(){try{const raw=localStorage.getItem(STORAGE_KEY);hasLocalData=!!raw;phrases=raw?JSON.parse(raw):SAMPLE;}catch{phrases=SAMPLE;}render();}
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(phrases));}
@@ -175,8 +180,9 @@ async function upsertCloudPhrase(p){if(!currentUser)return;try{setSyncStatus("Fi
 async function deleteCloudPhrase(id){if(!currentUser)return;try{setSyncStatus("Firebase에서 삭제 중...");await deleteDoc(phraseRef(id));setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 삭제 실패 - 로컬에는 반영됨");}}
 async function uploadAllToCloud(){if(!currentUser)return;try{setSyncStatus("기존 로컬 데이터를 Firebase로 업로드 중...");await Promise.all(phrases.map((p)=>setDoc(phraseRef(p.id),cleanPhrase(p),{merge:true})));setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 업로드 실패");}}
 async function loadCloudPhrases(){if(!currentUser)return;try{setSyncStatus("Firebase에서 불러오는 중...");const snap=await getDocs(userPhrasesRef());if(snap.empty){if(hasLocalData&&phrases.length>0)await uploadAllToCloud();else setSyncStatus("Firebase 자동 저장 준비됨");return;}phrases=snap.docs.map((d)=>d.data()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));save();openCards.clear();render();setSyncStatus("Firebase 자동 저장됨");}catch(e){console.error(e);setSyncStatus("Firebase 불러오기 실패 - 로컬 데이터 사용 중");}}
-function updateAuthUi(){const btn=document.getElementById("authButton");if(currentUser){document.body.classList.remove("auth-locked");btn.textContent="로그아웃";}else{document.body.classList.add("auth-locked");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
-async function handleAuth(){try{if(currentUser)await signOut(auth);else await signInWithRedirect(auth,provider);}catch(e){console.error(e);setSyncStatus("로그인 처리 실패");}}
+function updateAuthUi(){if(!authReady)return;const btn=document.getElementById("authButton");if(currentUser){document.body.classList.remove("auth-locked","auth-pending");btn.textContent="로그아웃";}else{document.body.classList.remove("auth-pending");document.body.classList.add("auth-locked");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
+async function handleAuth(){try{if(currentUser){await signOut(auth);}else{await setPersistence(auth,browserLocalPersistence);await signInWithRedirect(auth,provider);}}catch(e){console.error(e);setSyncStatus("로그인 처리 실패");}}
+async function initAuth(){try{await setPersistence(auth,browserLocalPersistence);await getRedirectResult(auth);}catch(e){console.error(e);if(e?.code&&e.code!=="auth/no-auth-event")setSyncStatus("로그인 처리 실패");}onAuthStateChanged(auth,(user)=>{currentUser=user;authReady=true;updateAuthUi();if(user)loadCloudPhrases();});}
 function getAllTags(){const s=new Set();phrases.forEach(p=>p.tags.forEach(t=>s.add(t)));return[...s].sort();}
 function highlight(text){if(!query||!text)return escHtml(text||"");const idx=text.toLowerCase().indexOf(query.toLowerCase());if(idx===-1)return escHtml(text);return escHtml(text.slice(0,idx))+`<mark>${escHtml(text.slice(idx,idx+query.length))}</mark>`+escHtml(text.slice(idx+query.length));}
 function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
@@ -198,8 +204,7 @@ function handleSave(){const jp=document.getElementById("f-japanese").value.trim(
 function deletePhrase(id){if(confirm("삭제할까요?")){phrases=phrases.filter(p=>p.id!==id);openCards.delete(id);save();render();deleteCloudPhrase(id);}}
 function handleExport(){const data=JSON.stringify(phrases,null,2);const blob=new Blob([data],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="일본어노트_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);}
 load();
-getRedirectResult(auth).catch((e)=>{console.error(e);setSyncStatus("로그인 처리 실패");});
-onAuthStateChanged(auth,(user)=>{currentUser=user;updateAuthUi();if(user)loadCloudPhrases();});
+initAuth();
 Object.assign(window,{handleAuth,handleExport,onSearch,clearSearch,setTag,toggleCard,openModal,closeModal,closeModalIfBg,toggleModalTag,addTagFromInput,checkValid,handleSave,deletePhrase});
 if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").catch(()=>{});});}
 </script>
