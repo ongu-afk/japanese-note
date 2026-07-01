@@ -1,290 +1,1907 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="마이 프레이즈">
-<meta name="theme-color" content="#111113">
-<title>마이 프레이즈</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { background: #111113; font-family: "Apple SD Gothic Neo", "Pretendard", sans-serif; color: #fff; max-width: 500px; margin: 0 auto; padding-bottom: 100px; min-height: 100vh; }
-  input { font-family: inherit; }
-  button { font-family: inherit; }
-  .header { padding: 0 20px; }
-  .header-hero { margin: 0 -20px; padding: 44px 20px 14px; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 0 0 22px 22px; position: relative; }
-  .header-actions { position: absolute; top: 12px; left: 20px; display: flex; justify-content: flex-start; }
-  .header-main { display: flex; align-items: center; justify-content: space-between; }
-  .header-left { display: flex; align-items: center; gap: 10px; position: relative; }
-  .language-selector { position: relative; }
-  .header-flag { background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; padding: 0; line-height: 1; }
-  .language-menu { position: absolute; top: 38px; left: 0; background: #18181b; border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 6px; min-width: 142px; box-shadow: 0 12px 36px rgba(0,0,0,0.45); display: none; z-index: 80; }
-  .language-menu.open { display: block; }
-  .language-option { width: 100%; background: transparent; border: none; border-radius: 10px; padding: 8px 10px; color: #fff; font-size: 13px; font-weight: 700; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-  .language-option:hover, .language-option.active { background: rgba(255,255,255,0.12); }
-  .header-title { font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
-  .header-count { color: #52525b; font-size: 12px; margin-top: 2px; }
-  .header-hero .header-count { color: rgba(255,255,255,0.72); }
-  .header-action-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16); border-radius: 10px; padding: 7px 11px; color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
-  .game-start-btn { background: transparent; border: none; color: #fff; font-size: 28px; line-height: 1; padding: 0 0 0 14px; cursor: pointer; opacity: 1; }
-  body.auth-pending .header, body.auth-pending .cards, body.auth-pending .fab, body.auth-pending .game-overlay { display: none; }
-  body.auth-pending .login-gate { display: none; }
-  .auth-loading { position: fixed; inset: 0; background: #111113; display: none; align-items: center; justify-content: center; color: #71717a; font-size: 14px; z-index: 150; }
-  body.auth-pending .auth-loading { display: flex; }
-  body.auth-locked .header, body.auth-locked .cards, body.auth-locked .fab, body.auth-locked .game-overlay { display: none; }
-  .login-gate { position: fixed; inset: 0; background: linear-gradient(160deg, #1e1b4b 0%, #4f46e5 100%); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 200; }
-  body.auth-locked .login-gate { display: flex; }
-  .login-card { width: 100%; max-width: 360px; text-align: center; }
-  .login-icon { width: 82px; height: 82px; margin: 0 auto 18px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.26); border-radius: 28px; display: grid; place-items: center; position: relative; box-shadow: 0 18px 48px rgba(0,0,0,0.24); }
-  .login-icon .bubble { font-size: 44px; line-height: 1; }
-  .login-icon .globe { position: absolute; right: 14px; bottom: 15px; font-size: 24px; line-height: 1; }
-  .login-title { font-size: 30px; font-weight: 900; letter-spacing: -0.8px; margin-bottom: 8px; }
-  .login-sub { color: rgba(255,255,255,0.78); font-size: 15px; line-height: 1.5; margin-bottom: 26px; }
-  .login-btn { width: 100%; background: #fff; border: none; border-radius: 14px; padding: 13px 16px; color: #18181b; font-size: 15px; font-weight: 800; cursor: pointer; }
-  .search-wrap { position: relative; margin: 18px 0 14px; }
-  .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #52525b; font-size: 15px; pointer-events: none; }
-  .search-input { width: 100%; background: #1c1c1f; border: 1.5px solid #2d2d30; border-radius: 12px; padding: 11px 36px 11px 38px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.15s; }
-  .search-input:focus { border-color: #4f46e5; }
-  .search-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #71717a; cursor: pointer; font-size: 18px; padding: 0; display: none; }
-  .tags-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 14px; scrollbar-width: none; -ms-overflow-style: none; }
-  .tags-row::-webkit-scrollbar { display: none; }
-  .pill { border-radius: 99px; padding: 3px 11px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1.5px solid; transition: all 0.15s; white-space: nowrap; line-height: 1.5; }
-  .cards { padding: 4px 16px; display: flex; flex-direction: column; gap: 10px; }
-  .card { background: #1c1c1f; border-radius: 16px; padding: 18px 16px; border: 1px solid #2d2d30; cursor: pointer; }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .card-jp { font-size: 21px; font-weight: 700; color: #fff; margin-bottom: 3px; font-family: "Noto Sans JP", sans-serif; line-height: 1.3; }
-  .card-reading { font-size: 12px; color: #71717a; margin-bottom: 6px; font-family: "Noto Sans JP", sans-serif; }
-  .card-kr { font-size: 14px; color: #d4d4d8; }
-  .card-arrow { color: #52525b; font-size: 16px; flex-shrink: 0; margin-top: 4px; }
-  .card-detail { margin-top: 14px; border-top: 1px solid #27272a; padding-top: 14px; display: none; }
-  .card-source { font-size: 12px; color: #71717a; margin-bottom: 8px; }
-  .card-source span { color: #a1a1aa; }
-  .card-note { font-size: 13px; color: #a1a1aa; background: #27272a; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
-  .card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
-  .card-actions { display: flex; gap: 8px; }
-  .card-btn { flex: 1; background: #27272a; border: none; border-radius: 10px; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
-  .btn-edit { color: #a1a1aa; }
-  .btn-del { color: #ef4444; }
-  .empty { text-align: center; padding: 60px 0; color: #52525b; }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; }
-  .empty-title { font-size: 15px; font-weight: 600; }
-  .empty-sub { font-size: 13px; margin-top: 6px; }
-  .fab { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #4f46e5, #7c3aed); border: none; border-radius: 99px; padding: 14px 28px; color: #fff; font-weight: 700; font-size: 16px; box-shadow: 0 8px 32px rgba(79,70,229,0.45); cursor: pointer; display: flex; align-items: center; gap: 8px; z-index: 50; white-space: nowrap; }
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 100; backdrop-filter: blur(2px); display: none; }
-  .modal { background: #18181b; border-radius: 20px 20px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 500px; max-height: 92vh; overflow-y: auto; box-shadow: 0 -8px 40px rgba(0,0,0,0.5); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-  .modal-title { font-weight: 700; font-size: 17px; }
-  .modal-close { background: none; border: none; color: #71717a; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
-  .field { margin-bottom: 14px; }
-  .field label { color: #a1a1aa; font-size: 12px; font-weight: 600; display: block; margin-bottom: 5px; }
-  .field input { width: 100%; background: #27272a; border: 1.5px solid #3f3f46; border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 14px; outline: none; }
-  .field input.jp { font-size: 18px; font-family: "Noto Sans JP", sans-serif; }
-  .field input::placeholder { color: #52525b; }
-  .tag-section { margin-bottom: 18px; }
-  .tag-section label { color: #a1a1aa; font-size: 12px; font-weight: 600; display: block; margin-bottom: 8px; }
-  .existing-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 10px; }
-  .tag-input-row { display: flex; gap: 8px; }
-  .tag-input-row input { flex: 1; background: #27272a; border: 1.5px solid #3f3f46; border-radius: 10px; padding: 8px 12px; color: #fff; font-size: 13px; outline: none; }
-  .tag-input-row input::placeholder { color: #52525b; }
-  .btn-add-tag { background: #4f46e5; border: none; border-radius: 10px; padding: 8px 14px; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
-  .btn-save { width: 100%; background: #4f46e5; border: none; border-radius: 12px; padding: 14px; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.15s; }
-  .btn-save:disabled { background: #3f3f46; color: #71717a; cursor: not-allowed; }
-  .game-overlay { position: fixed; inset: 0; background: #111113; display: none; z-index: 120; overflow-y: auto; padding: 22px 16px 36px; }
-  .game-overlay.open { display: block; }
-  .game-shell { max-width: 500px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; }
-  .game-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-  .game-title { font-size: 17px; font-weight: 800; }
-  .game-close { background: #27272a; border: 1px solid #3f3f46; border-radius: 10px; padding: 7px 11px; color: #a1a1aa; font-size: 12px; font-weight: 800; cursor: pointer; }
-  .game-counter { color: #a1a1aa; font-size: 13px; margin-bottom: 12px; }
-  .practice-card { background: #1c1c1f; border: 1px solid #2d2d30; border-radius: 24px; padding: 26px 20px; box-shadow: 0 14px 42px rgba(0,0,0,0.22); }
-  .practice-label { color: #71717a; font-size: 12px; font-weight: 800; margin-bottom: 10px; }
-  .practice-question { font-size: 25px; font-weight: 800; line-height: 1.35; margin-bottom: 18px; }
-  .practice-answer { border-top: 1px solid #2d2d30; margin-top: 18px; padding-top: 18px; display: none; }
-  .practice-answer.show { display: block; }
-  .practice-foreign { font-size: 24px; font-weight: 800; line-height: 1.35; font-family: "Noto Sans JP", sans-serif; }
-  .practice-reading { color: #a1a1aa; font-size: 14px; margin-top: 6px; font-family: "Noto Sans JP", sans-serif; }
-  .game-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
-  .game-btn { border: none; border-radius: 14px; padding: 14px 16px; color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
-  .game-primary { background: var(--language-gradient, linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)); }
-  .game-secondary { background: #27272a; color: #d4d4d8; }
-  .game-result-row { display: none; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
-  .game-result-row.show { display: grid; }
-  .game-correct { background: #16a34a; }
-  .game-wrong { background: #dc2626; }
-  .game-empty, .game-complete { background: #1c1c1f; border: 1px solid #2d2d30; border-radius: 24px; padding: 42px 22px; text-align: center; margin-top: 30px; }
-  .game-empty-icon, .game-complete-icon { font-size: 42px; margin-bottom: 14px; }
-  .game-message-title { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
-  .game-message-sub { color: #a1a1aa; font-size: 14px; line-height: 1.5; margin-bottom: 20px; }
-  mark { background: #fbbf24; color: #18181b; border-radius: 3px; padding: 0 1px; }
-</style>
-</head>
-<body class="auth-pending">
-<div class="auth-loading" id="authLoading">로그인 확인 중...</div>
-<div class="login-gate">
-  <div class="login-card">
-    <div class="login-icon"><span class="bubble">💬</span><span class="globe">🌍</span></div>
-    <div class="login-title">마이 프레이즈</div>
-    <div class="login-sub">모든 언어를 한 곳에서</div>
-    <button class="login-btn" onclick="handleAuth()">Google로 시작하기</button>
-  </div>
-</div>
-<div class="header">
-  <div class="header-hero">
-    <div class="header-actions">
-      <button class="header-action-btn" id="authButton" onclick="handleAuth()">로그아웃</button>
-    </div>
-    <div class="header-main">
-      <div class="header-left">
-        <div class="language-selector">
-          <button class="header-flag" id="languageButton" onclick="toggleLanguageMenu(event)">🇯🇵</button>
-          <div class="language-menu" id="languageMenu"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="마이 프레이즈" />
+    <meta name="theme-color" content="#111113" />
+    <title>마이 프레이즈</title>
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        background: #111113;
+        font-family: "Apple SD Gothic Neo", "Pretendard", sans-serif;
+        color: #fff;
+        max-width: 500px;
+        margin: 0 auto;
+        padding-bottom: 100px;
+        min-height: 100vh;
+      }
+      input {
+        font-family: inherit;
+      }
+      button {
+        font-family: inherit;
+      }
+      .header {
+        padding: 0 20px;
+      }
+      .header-hero {
+        margin: 0 -20px;
+        padding: 44px 20px 14px;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border-radius: 0 0 22px 22px;
+        position: relative;
+      }
+      .header-actions {
+        position: absolute;
+        top: 12px;
+        left: 20px;
+        display: flex;
+        justify-content: flex-start;
+      }
+      .header-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: relative;
+      }
+      .language-selector {
+        position: relative;
+      }
+      .header-flag {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 28px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+      .language-menu {
+        position: absolute;
+        top: 38px;
+        left: 0;
+        background: #18181b;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 14px;
+        padding: 6px;
+        min-width: 142px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+        display: none;
+        z-index: 80;
+      }
+      .language-menu.open {
+        display: block;
+      }
+      .language-option {
+        width: 100%;
+        background: transparent;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 10px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .language-option:hover,
+      .language-option.active {
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .header-title {
+        font-weight: 800;
+        font-size: 20px;
+        letter-spacing: -0.5px;
+      }
+      .header-count {
+        color: #52525b;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .header-hero .header-count {
+        color: rgba(255, 255, 255, 0.72);
+      }
+      .header-action-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 10px;
+        padding: 7px 11px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .game-start-btn {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 28px;
+        line-height: 1;
+        padding: 0 0 0 14px;
+        cursor: pointer;
+        opacity: 1;
+      }
+      body.auth-pending .header,
+      body.auth-pending .cards,
+      body.auth-pending .fab,
+      body.auth-pending .game-overlay {
+        display: none;
+      }
+      body.auth-pending .login-gate {
+        display: none;
+      }
+      .auth-loading {
+        position: fixed;
+        inset: 0;
+        background: #111113;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #71717a;
+        font-size: 14px;
+        z-index: 150;
+      }
+      body.auth-pending .auth-loading {
+        display: flex;
+      }
+      body.auth-locked .header,
+      body.auth-locked .cards,
+      body.auth-locked .fab,
+      body.auth-locked .game-overlay {
+        display: none;
+      }
+      .login-gate {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(160deg, #1e1b4b 0%, #4f46e5 100%);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        z-index: 200;
+      }
+      body.auth-locked .login-gate {
+        display: flex;
+      }
+      .login-card {
+        width: 100%;
+        max-width: 360px;
+        text-align: center;
+      }
+      .login-icon {
+        width: 82px;
+        height: 82px;
+        margin: 0 auto 18px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        border-radius: 28px;
+        display: grid;
+        place-items: center;
+        position: relative;
+        box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+      }
+      .login-icon .bubble {
+        font-size: 44px;
+        line-height: 1;
+      }
+      .login-icon .globe {
+        position: absolute;
+        right: 14px;
+        bottom: 15px;
+        font-size: 24px;
+        line-height: 1;
+      }
+      .login-title {
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -0.8px;
+        margin-bottom: 8px;
+      }
+      .login-sub {
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 15px;
+        line-height: 1.5;
+        margin-bottom: 26px;
+      }
+      .login-btn {
+        width: 100%;
+        background: #fff;
+        border: none;
+        border-radius: 14px;
+        padding: 13px 16px;
+        color: #18181b;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .search-wrap {
+        position: relative;
+        margin: 18px 0 14px;
+      }
+      .search-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #52525b;
+        font-size: 15px;
+        pointer-events: none;
+      }
+      .search-input {
+        width: 100%;
+        background: #1c1c1f;
+        border: 1.5px solid #2d2d30;
+        border-radius: 12px;
+        padding: 11px 36px 11px 38px;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .search-input:focus {
+        border-color: #4f46e5;
+      }
+      .search-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #71717a;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0;
+        display: none;
+      }
+      .tags-row {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 14px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .tags-row::-webkit-scrollbar {
+        display: none;
+      }
+      .pill {
+        border-radius: 99px;
+        padding: 3px 11px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1.5px solid;
+        transition: all 0.15s;
+        white-space: nowrap;
+        line-height: 1.5;
+      }
+      .cards {
+        padding: 4px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .card {
+        background: #1c1c1f;
+        border-radius: 16px;
+        padding: 18px 16px;
+        border: 1px solid #2d2d30;
+        cursor: pointer;
+      }
+      .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .card-jp {
+        font-size: 21px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 3px;
+        font-family: "Noto Sans JP", sans-serif;
+        line-height: 1.3;
+      }
+      .card-reading {
+        font-size: 12px;
+        color: #71717a;
+        margin-bottom: 6px;
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .card-kr {
+        font-size: 14px;
+        color: #d4d4d8;
+      }
+      .card-arrow {
+        color: #52525b;
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .card-detail {
+        margin-top: 14px;
+        border-top: 1px solid #27272a;
+        padding-top: 14px;
+        display: none;
+      }
+      .card-source {
+        font-size: 12px;
+        color: #71717a;
+        margin-bottom: 8px;
+      }
+      .card-source span {
+        color: #a1a1aa;
+      }
+      .card-note {
+        font-size: 13px;
+        color: #a1a1aa;
+        background: #27272a;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+      }
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 12px;
+      }
+      .card-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .card-btn {
+        flex: 1;
+        background: #27272a;
+        border: none;
+        border-radius: 10px;
+        padding: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .btn-edit {
+        color: #a1a1aa;
+      }
+      .btn-del {
+        color: #ef4444;
+      }
+      .empty {
+        text-align: center;
+        padding: 60px 0;
+        color: #52525b;
+      }
+      .empty-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+      .empty-title {
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .empty-sub {
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      .fab {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 99px;
+        padding: 14px 28px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        box-shadow: 0 8px 32px rgba(79, 70, 229, 0.45);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 50;
+        white-space: nowrap;
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        z-index: 100;
+        backdrop-filter: blur(2px);
+        display: none;
+      }
+      .modal {
+        background: #18181b;
+        border-radius: 20px 20px 0 0;
+        padding: 24px 20px 36px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 92vh;
+        overflow-y: auto;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .modal-title {
+        font-weight: 700;
+        font-size: 17px;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        color: #71717a;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      .field label {
+        color: #a1a1aa;
+        font-size: 12px;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+      }
+      .field input {
+        width: 100%;
+        background: #27272a;
+        border: 1.5px solid #3f3f46;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+      }
+      .field input.jp {
+        font-size: 18px;
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .field input::placeholder {
+        color: #52525b;
+      }
+      .tag-section {
+        margin-bottom: 18px;
+      }
+      .tag-section label {
+        color: #a1a1aa;
+        font-size: 12px;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .existing-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+        min-height: 10px;
+      }
+      .tag-input-row {
+        display: flex;
+        gap: 8px;
+      }
+      .tag-input-row input {
+        flex: 1;
+        background: #27272a;
+        border: 1.5px solid #3f3f46;
+        border-radius: 10px;
+        padding: 8px 12px;
+        color: #fff;
+        font-size: 13px;
+        outline: none;
+      }
+      .tag-input-row input::placeholder {
+        color: #52525b;
+      }
+      .btn-add-tag {
+        background: #4f46e5;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 14px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .btn-save {
+        width: 100%;
+        background: #4f46e5;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        color: #fff;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-save:disabled {
+        background: #3f3f46;
+        color: #71717a;
+        cursor: not-allowed;
+      }
+      .game-overlay {
+        position: fixed;
+        inset: 0;
+        background: #111113;
+        display: none;
+        z-index: 120;
+        overflow-y: auto;
+        padding: 22px 16px 36px;
+      }
+      .game-overlay.open {
+        display: block;
+      }
+      .game-shell {
+        max-width: 500px;
+        margin: 0 auto;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .game-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+      .game-title {
+        font-size: 17px;
+        font-weight: 800;
+      }
+      .game-close {
+        background: #27272a;
+        border: 1px solid #3f3f46;
+        border-radius: 10px;
+        padding: 7px 11px;
+        color: #a1a1aa;
+        font-size: 12px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .game-counter {
+        color: #a1a1aa;
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+      .practice-card {
+        background: #1c1c1f;
+        border: 1px solid #2d2d30;
+        border-radius: 24px;
+        padding: 26px 20px;
+        box-shadow: 0 14px 42px rgba(0, 0, 0, 0.22);
+      }
+      .practice-label {
+        color: #71717a;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 10px;
+      }
+      .practice-question {
+        font-size: 25px;
+        font-weight: 800;
+        line-height: 1.35;
+        margin-bottom: 18px;
+      }
+      .practice-answer {
+        border-top: 1px solid #2d2d30;
+        margin-top: 18px;
+        padding-top: 18px;
+        display: none;
+      }
+      .practice-answer.show {
+        display: block;
+      }
+      .practice-foreign {
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.35;
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .practice-reading {
+        color: #a1a1aa;
+        font-size: 14px;
+        margin-top: 6px;
+        font-family: "Noto Sans JP", sans-serif;
+      }
+      .game-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .game-btn {
+        border: none;
+        border-radius: 14px;
+        padding: 14px 16px;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .game-primary {
+        background: var(
+          --language-gradient,
+          linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)
+        );
+      }
+      .game-secondary {
+        background: #27272a;
+        color: #d4d4d8;
+      }
+      .game-result-row {
+        display: none;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 18px;
+      }
+      .game-result-row.show {
+        display: grid;
+      }
+      .game-correct {
+        background: #16a34a;
+      }
+      .game-wrong {
+        background: #dc2626;
+      }
+      .game-empty,
+      .game-complete {
+        background: #1c1c1f;
+        border: 1px solid #2d2d30;
+        border-radius: 24px;
+        padding: 42px 22px;
+        text-align: center;
+        margin-top: 30px;
+      }
+      .game-empty-icon,
+      .game-complete-icon {
+        font-size: 42px;
+        margin-bottom: 14px;
+      }
+      .game-message-title {
+        font-size: 20px;
+        font-weight: 900;
+        margin-bottom: 8px;
+      }
+      .game-message-sub {
+        color: #a1a1aa;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+      mark {
+        background: #fbbf24;
+        color: #18181b;
+        border-radius: 3px;
+        padding: 0 1px;
+      }
+      .ai-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 14px;
+        background: linear-gradient(135deg, #1a73e8, #8b5cf6);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+        margin-top: 6px;
+      }
+      .ai-btn:hover {
+        opacity: 0.88;
+        transform: translateY(-1px);
+      }
+      .ai-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .ai-btn .ai-spinner {
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: ai-spin 0.7s linear infinite;
+        display: none;
+      }
+      .ai-btn.loading .ai-spinner {
+        display: block;
+      }
+      .ai-btn.loading .ai-btn-text {
+        display: none;
+      }
+      @keyframes ai-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #ai-suggestions-panel {
+        margin-top: 12px;
+        display: none;
+      }
+      #ai-suggestions-panel.visible {
+        display: block;
+      }
+      .ai-panel-label {
+        font-size: 11px;
+        color: #8b5cf6;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .ai-suggestion-card {
+        background: rgba(139, 92, 246, 0.08);
+        border: 1px solid rgba(139, 92, 246, 0.22);
+        border-radius: 10px;
+        padding: 11px 14px;
+        margin-bottom: 7px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      }
+      .ai-suggestion-card:hover {
+        background: rgba(139, 92, 246, 0.18);
+        border-color: rgba(139, 92, 246, 0.5);
+        transform: translateX(3px);
+      }
+      .ai-card-original {
+        font-size: 17px;
+        font-weight: 700;
+        color: #e2e8f0;
+        margin-bottom: 3px;
+      }
+      .ai-card-reading {
+        font-size: 13px;
+        color: #a78bfa;
+        margin-bottom: 3px;
+      }
+      .ai-card-nuance {
+        font-size: 11px;
+        color: #64748b;
+        font-style: italic;
+      }
+      .ai-card-tap-hint {
+        font-size: 10px;
+        color: #475569;
+        text-align: right;
+        margin-top: 4px;
+      }
+      .ai-error-msg {
+        font-size: 13px;
+        color: #f87171;
+        padding: 10px;
+        background: rgba(239, 68, 68, 0.08);
+        border-radius: 8px;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+    </style>
+  </head>
+  <body class="auth-pending">
+    <div class="auth-loading" id="authLoading">로그인 확인 중...</div>
+    <div class="login-gate">
+      <div class="login-card">
+        <div class="login-icon">
+          <span class="bubble">💬</span><span class="globe">🌍</span>
         </div>
-        <div>
-          <div class="header-title" id="headerTitle">나의 일본어 노트</div>
-          <div class="header-count" id="count">0개의 회화 표현</div>
+        <div class="login-title">마이 프레이즈</div>
+        <div class="login-sub">모든 언어를 한 곳에서</div>
+        <button class="login-btn" onclick="handleAuth()">
+          Google로 시작하기
+        </button>
+      </div>
+    </div>
+    <div class="header">
+      <div class="header-hero">
+        <div class="header-actions">
+          <button
+            class="header-action-btn"
+            id="authButton"
+            onclick="handleAuth()"
+          >
+            로그아웃
+          </button>
+        </div>
+        <div class="header-main">
+          <div class="header-left">
+            <div class="language-selector">
+              <button
+                class="header-flag"
+                id="languageButton"
+                onclick="toggleLanguageMenu(event)"
+              >
+                🇯🇵
+              </button>
+              <div class="language-menu" id="languageMenu"></div>
+            </div>
+            <div>
+              <div class="header-title" id="headerTitle">나의 일본어 노트</div>
+              <div class="header-count" id="count">0개의 회화 표현</div>
+            </div>
+          </div>
+          <button
+            class="game-start-btn"
+            onclick="startGame()"
+            title="연습 게임"
+          >
+            🔥
+          </button>
         </div>
       </div>
-      <button class="game-start-btn" onclick="startGame()" title="연습 게임">🔥</button>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          class="search-input"
+          id="searchInput"
+          placeholder="일본어 또는 한국어로 검색"
+          oninput="onSearch()"
+        />
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">
+          ×
+        </button>
+      </div>
+      <div class="tags-row" id="tagsRow"></div>
     </div>
-  </div>
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input class="search-input" id="searchInput" placeholder="일본어 또는 한국어로 검색" oninput="onSearch()" />
-    <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
-  </div>
-  <div class="tags-row" id="tagsRow"></div>
-</div>
-<div class="cards" id="cards"></div>
-<button class="fab" onclick="openModal(null)"><span style="font-size:20px;line-height:1">+</span> 표현 추가</button>
-<div class="overlay" id="overlay" onclick="closeModalIfBg(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">새 회화 추가</span>
-      <button class="modal-close" onclick="closeModal()">×</button>
-    </div>
-    <div class="field"><label id="japaneseLabel">일본어 원문 *</label><input class="jp" id="f-japanese" placeholder="예: お疲れ様でした" oninput="checkValid()" /></div>
-    <div class="field"><label id="readingLabel">읽는 법 (히라가나)</label><input id="f-reading" placeholder="예: おつかれさまでした" style="font-family:'Noto Sans JP',sans-serif" /></div>
-    <div class="field"><label>한국어 뜻 *</label><input id="f-korean" placeholder="예: 수고하셨습니다" oninput="checkValid()" /></div>
-    <div class="field"><label>출처 (유튜브 채널, 사이트 등)</label><input id="f-source" placeholder="예: 유튜브 - 日本語の森" /></div>
-    <div class="field"><label>메모</label><input id="f-note" placeholder="언제 쓰는지, 뉘앙스 등" /></div>
-    <div class="tag-section">
-      <label>태그</label>
-      <div class="existing-tags" id="modalTags"></div>
-      <div class="tag-input-row">
-        <input id="tagInput" placeholder="새 태그 입력 후 + 버튼" onkeydown="if(event.key==='Enter')addTagFromInput()" />
-        <button class="btn-add-tag" onclick="addTagFromInput()">+</button>
+    <div class="cards" id="cards"></div>
+    <button class="fab" onclick="openModal(null)">
+      <span style="font-size: 20px; line-height: 1">+</span> 표현 추가
+    </button>
+    <div class="overlay" id="overlay" onclick="closeModalIfBg(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <span class="modal-title" id="modalTitle">새 회화 추가</span>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="field">
+          <label id="japaneseLabel">일본어 원문 *</label
+          ><input
+            class="jp"
+            id="f-japanese"
+            placeholder="예: お疲れ様でした"
+            oninput="checkValid()"
+          />
+        </div>
+        <div class="field">
+          <label id="readingLabel">읽는 법 (히라가나)</label
+          ><input
+            id="f-reading"
+            placeholder="예: おつかれさまでした"
+            style="font-family: 'Noto Sans JP', sans-serif"
+          />
+        </div>
+        <div class="field">
+          <label>한국어 뜻 *</label
+          ><input
+            id="f-korean"
+            placeholder="예: 수고하셨습니다"
+            oninput="checkValid()"
+          />
+          <div class="field">
+            <button
+              type="button"
+              class="ai-btn"
+              id="ai-suggest-btn"
+              onclick="fetchGeminiSuggestions()"
+            >
+              <div class="ai-spinner"></div>
+              <span class="ai-btn-text">✨ AI 번역 제안</span>
+            </button>
+            <div id="ai-suggestions-panel">
+              <div class="ai-panel-label">
+                ✨ 제미나이 추천 — 클릭하면 자동 입력돼요
+              </div>
+              <div id="ai-suggestions-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label>출처 (유튜브 채널, 사이트 등)</label
+          ><input id="f-source" placeholder="예: 유튜브 - 日本語の森" />
+        </div>
+        <div class="field">
+          <label>메모</label
+          ><input id="f-note" placeholder="언제 쓰는지, 뉘앙스 등" />
+        </div>
+        <div class="tag-section">
+          <label>태그</label>
+          <div class="existing-tags" id="modalTags"></div>
+          <div class="tag-input-row">
+            <input
+              id="tagInput"
+              placeholder="새 태그 입력 후 + 버튼"
+              onkeydown="if(event.key==='Enter')addTagFromInput()"
+            />
+            <button class="btn-add-tag" onclick="addTagFromInput()">+</button>
+          </div>
+        </div>
+        <button class="btn-save" id="btnSave" onclick="handleSave()" disabled>
+          저장하기
+        </button>
       </div>
     </div>
-    <button class="btn-save" id="btnSave" onclick="handleSave()" disabled>저장하기</button>
-  </div>
-</div>
-<div class="game-overlay" id="gameOverlay">
-  <div class="game-shell">
-    <div class="game-top">
-      <div class="game-title" id="gameTitle">연습 게임</div>
-      <button class="game-close" onclick="closeGame()">나가기</button>
+    <div class="game-overlay" id="gameOverlay">
+      <div class="game-shell">
+        <div class="game-top">
+          <div class="game-title" id="gameTitle">연습 게임</div>
+          <button class="game-close" onclick="closeGame()">나가기</button>
+        </div>
+        <div id="gameContent"></div>
+      </div>
     </div>
-    <div id="gameContent"></div>
-  </div>
-</div>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+      import {
+        getAnalytics,
+        isSupported as isAnalyticsSupported,
+      } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+      import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signOut,
+        onAuthStateChanged,
+        setPersistence,
+        browserLocalPersistence,
+      } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        setDoc,
+        deleteDoc,
+        serverTimestamp,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDyKiervhmEgcwDxCCtzl85AFjr_-aZn6U",
-  authDomain: "japanese-note-1dc3e.firebaseapp.com",
-  projectId: "japanese-note-1dc3e",
-  storageBucket: "japanese-note-1dc3e.firebasestorage.app",
-  messagingSenderId: "437184948701",
-  appId: "1:437184948701:web:42b44bdf60adefa3772e34",
-  measurementId: "G-DKT421YQHE"
-};
+      const firebaseConfig = {
+        apiKey: "AIzaSyDyKiervhmEgcwDxCCtzl85AFjr_-aZn6U",
+        authDomain: "japanese-note-1dc3e.firebaseapp.com",
+        projectId: "japanese-note-1dc3e",
+        storageBucket: "japanese-note-1dc3e.firebasestorage.app",
+        messagingSenderId: "437184948701",
+        appId: "1:437184948701:web:42b44bdf60adefa3772e34",
+        measurementId: "G-DKT421YQHE",
+      };
 
-const app = initializeApp(firebaseConfig);
-isAnalyticsSupported().then((ok) => { if (ok) getAnalytics(app); }).catch(() => {});
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: "select_account" });
-const db = getFirestore(app);
+      const app = initializeApp(firebaseConfig);
+      isAnalyticsSupported()
+        .then((ok) => {
+          if (ok) getAnalytics(app);
+        })
+        .catch(() => {});
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      const db = getFirestore(app);
 
-const STORAGE_KEY="jp-study-phrases";
-const LANGUAGE_KEY="jp-note-language";
-const LANGUAGES={
-  english:{flag:"🇺🇸",name:"영어",reading:"발음",gradient:"linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",samplePlaceholder:"예: Take care",sourcePlaceholder:"예: 유튜브 - English Addict"},
-  chinese:{flag:"🇨🇳",name:"중국어",reading:"병음",gradient:"linear-gradient(135deg, #dc2626 0%, #f97316 100%)",samplePlaceholder:"예: 你好",sourcePlaceholder:"예: 유튜브 - 慢速中文"},
-  japanese:{flag:"🇯🇵",name:"일본어",reading:"히라가나",gradient:"linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",samplePlaceholder:"예: お疲れ様でした",sourcePlaceholder:"예: 유튜브 - 日本語の森"},
-  spanish:{flag:"🇪🇸",name:"스페인어",reading:"발음",gradient:"linear-gradient(135deg, #f97316 0%, #f59e0b 100%)",samplePlaceholder:"예: Buenos días",sourcePlaceholder:"예: 유튜브 - Español con Juan"},
-  french:{flag:"🇫🇷",name:"프랑스어",reading:"발음",gradient:"linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)",samplePlaceholder:"예: Bonjour",sourcePlaceholder:"예: 유튜브 - Français Authentique"}
-};
-const TAG_COLORS=["#0ea5e9","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#f97316"];
-const ALL_TAG_COLOR="#4f46e5";
-const SAMPLE=[{id:1,japanese:"いただきます",reading:"いただきます",korean:"잘 먹겠습니다 (식사 전 인사)",source:"일상 회화",tags:["식사","인사"],note:"식사 시작 전 반드시 쓰는 표현",createdAt:Date.now()-10000},{id:2,japanese:"お疲れ様でした",reading:"おつかれさまでした",korean:"수고하셨습니다",source:"유튜브 - 직장 드라마",tags:["직장","인사"],note:"퇴근할 때 동료에게",createdAt:Date.now()-8000},{id:3,japanese:"すみません、〜はどこですか？",reading:"すみません、〜はどこですか？",korean:"저기요, ~은 어디에 있나요?",source:"여행 일본어 사이트",tags:["여행","길 찾기"],note:"〜 자리에 장소명 넣기",createdAt:Date.now()-5000}];
-let phrases=[],query="",activeTag=null,editingId=null,selectedTags=[],openCards=new Set(),currentUser=null,hasLocalData=false,authReady=false,cloudUnsubscribe=null,currentLanguage=localStorage.getItem(LANGUAGE_KEY)||"japanese",gameQueue=[],gameCurrent=null,gameAnswerShown=false,gameInitialCount=0;
-if(!LANGUAGES[currentLanguage])currentLanguage="japanese";
-function language(){return LANGUAGES[currentLanguage];}
-function storageKey(){return `${STORAGE_KEY}-${currentLanguage}`;}
-function tagColor(tag){let hash=0;for(let i=0;i<tag.length;i++)hash=tag.charCodeAt(i)+((hash<<5)-hash);return TAG_COLORS[Math.abs(hash)%TAG_COLORS.length];}
-function load(){try{const raw=localStorage.getItem(storageKey())||(currentLanguage==="japanese"?localStorage.getItem(STORAGE_KEY):null);hasLocalData=!!raw;phrases=raw?JSON.parse(raw):currentLanguage==="japanese"?SAMPLE:[];}catch{phrases=currentLanguage==="japanese"?SAMPLE:[];}render();}
-function save(){localStorage.setItem(storageKey(),JSON.stringify(phrases));}
-function userPhrasesRef(){return collection(db,"users",currentUser.uid,"languages",currentLanguage,"phrases");}
-function phraseRef(id){return doc(db,"users",currentUser.uid,"languages",currentLanguage,"phrases",String(id));}
-function cleanPhrase(p){return{id:p.id,japanese:p.japanese||"",reading:p.reading||"",korean:p.korean||"",source:p.source||"",note:p.note||"",tags:Array.isArray(p.tags)?p.tags:[],createdAt:p.createdAt||Date.now(),updatedAt:Date.now(),syncedAt:serverTimestamp()};}
-function setSyncStatus(text){console.log("[AUTH]",text);}
-function authLog(step,detail={}){console.log("[AUTH]",step,detail);}
-function authError(step,error){console.error("[AUTH]",step,{code:error?.code,message:error?.message,name:error?.name,error});}
-function renderLanguageMenu(){const menu=document.getElementById("languageMenu");menu.innerHTML=Object.entries(LANGUAGES).map(([key,lang])=>`<button class="language-option ${key===currentLanguage?"active":""}" onclick="selectLanguage('${key}')"><span>${lang.flag}</span><span>${lang.name}</span></button>`).join("");}
-function updateLanguageUi(){const lang=language();document.title=`${lang.flag} 나의 ${lang.name} 노트`;document.documentElement.style.setProperty("--language-gradient",lang.gradient);document.querySelector(".header-hero").style.background=lang.gradient;document.getElementById("languageButton").textContent=lang.flag;document.getElementById("headerTitle").textContent=`나의 ${lang.name} 노트`;document.getElementById("searchInput").placeholder=`${lang.name} 또는 한국어로 검색`;document.getElementById("japaneseLabel").textContent=`${lang.name} 원문 *`;document.getElementById("readingLabel").textContent=`읽는 법 (${lang.reading})`;document.getElementById("f-japanese").placeholder=lang.samplePlaceholder;document.getElementById("f-reading").placeholder=lang.reading==="병음"?"예: nǐ hǎo":lang.reading==="히라가나"?"예: おつかれさまでした":"예: 발음 메모";document.getElementById("f-source").placeholder=lang.sourcePlaceholder;document.getElementById("gameTitle").textContent=`${lang.name} 연습 게임`;renderLanguageMenu();}
-function toggleLanguageMenu(event){event.stopPropagation();document.getElementById("languageMenu").classList.toggle("open");}
-function closeLanguageMenu(){document.getElementById("languageMenu").classList.remove("open");}
-function selectLanguage(key){if(!LANGUAGES[key]||key===currentLanguage){closeLanguageMenu();return;}authLog("language selected",{from:currentLanguage,to:key});closeGame();currentLanguage=key;localStorage.setItem(LANGUAGE_KEY,currentLanguage);closeLanguageMenu();query="";activeTag=null;openCards.clear();document.getElementById("searchInput").value="";document.getElementById("searchClear").style.display="none";updateLanguageUi();load();if(currentUser){stopCloudSync();startCloudSync();}}
-function updateAuthUi(){if(!authReady){authLog("updateAuthUi skipped (auth not ready)");return;}const btn=document.getElementById("authButton");if(currentUser){authLog("updateAuthUi signed in",{uid:currentUser.uid,email:currentUser.email,displayName:currentUser.displayName});document.body.classList.remove("auth-locked","auth-pending");btn.textContent="로그아웃";}else{authLog("updateAuthUi signed out -> show login gate");document.body.classList.remove("auth-pending");document.body.classList.add("auth-locked");setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");}}
-async function handleAuth(){try{if(currentUser){authLog("handleAuth logout start",{uid:currentUser.uid});await signOut(auth);authLog("handleAuth logout done");return;}authLog("handleAuth popup start",{href:location.href,authDomain:firebaseConfig.authDomain,standalone:window.matchMedia("(display-mode: standalone)").matches});await setPersistence(auth,browserLocalPersistence);authLog("handleAuth persistence set");const result=await signInWithPopup(auth,provider);authLog("handleAuth popup success",{uid:result.user.uid,email:result.user.email,providerId:result.providerId,operationType:result.operationType});}catch(e){authError("handleAuth popup failed",e);setSyncStatus("로그인 처리 실패: "+(e?.code||e?.message||"unknown"));}}
-async function initAuth(){authLog("initAuth start",{href:location.href,search:location.search,hash:location.hash,authDomain:firebaseConfig.authDomain});try{authLog("initAuth setPersistence start");await setPersistence(auth,browserLocalPersistence);authLog("initAuth setPersistence done");}catch(e){authError("initAuth setPersistence failed",e);}authLog("initAuth onAuthStateChanged subscribe");onAuthStateChanged(auth,(user)=>{authLog("onAuthStateChanged",{hasUser:!!user,uid:user?.uid||null,email:user?.email||null,authReadyBefore:authReady});stopCloudSync();currentUser=user;authReady=true;if(user){authLog("onAuthStateChanged start cloud sync",{uid:user.uid});startCloudSync();}else{phrases=[];save();render();updateAuthUi();}});authLog("initAuth currentUser after setup",{uid:auth.currentUser?.uid||null,email:auth.currentUser?.email||null});}
-async function upsertCloudPhrase(p){if(!currentUser)return;try{setSyncStatus("Firebase에 저장 중...");await setDoc(phraseRef(p.id),cleanPhrase(p),{merge:true});setSyncStatus("Firebase 자동 저장됨");}catch(e){authError("upsertCloudPhrase failed",e);setSyncStatus("Firebase 저장 실패 - 로컬에는 저장됨");}}
-async function deleteCloudPhrase(id){if(!currentUser)return;try{setSyncStatus("Firebase에서 삭제 중...");await deleteDoc(phraseRef(id));setSyncStatus("Firebase 자동 저장됨");}catch(e){authError("deleteCloudPhrase failed",e);setSyncStatus("Firebase 삭제 실패 - 로컬에는 반영됨");}}
-function stopCloudSync(){if(cloudUnsubscribe){authLog("stopCloudSync");cloudUnsubscribe();cloudUnsubscribe=null;}}
-function startCloudSync(){if(!currentUser)return;document.body.classList.add("auth-pending");phrases=[];openCards.clear();render();setSyncStatus("Firebase에서 불러오는 중...");cloudUnsubscribe=onSnapshot(userPhrasesRef(),(snap)=>{authLog("cloud snapshot",{count:snap.size,empty:snap.empty,fromCache:snap.metadata.fromCache,hasPendingWrites:snap.metadata.hasPendingWrites});phrases=snap.docs.map((d)=>d.data()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));save();openCards.forEach((id)=>{if(!phrases.some((p)=>p.id===id))openCards.delete(id);});render();updateAuthUi();setSyncStatus("Firebase 클라우드 데이터와 동기화됨");},(e)=>{authError("cloud snapshot failed",e);setSyncStatus("Firebase 동기화 실패");updateAuthUi();});}
-function getAllTags(){const s=new Set();phrases.forEach(p=>p.tags.forEach(t=>s.add(t)));return[...s].sort();}
-function highlight(text){if(!query||!text)return escHtml(text||"");const idx=text.toLowerCase().indexOf(query.toLowerCase());if(idx===-1)return escHtml(text);return escHtml(text.slice(0,idx))+`<mark>${escHtml(text.slice(idx,idx+query.length))}</mark>`+escHtml(text.slice(idx+query.length));}
-function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function render(){document.getElementById("count").textContent=phrases.length+"개의 회화 표현";const allTags=getAllTags();const tagsRow=document.getElementById("tagsRow");if(allTags.length===0){tagsRow.innerHTML="";}else{let html=`<button class="pill" onclick="setTag(null)" style="border-color:${ALL_TAG_COLOR};background:${activeTag===null?ALL_TAG_COLOR:'transparent'};color:${activeTag===null?'#fff':ALL_TAG_COLOR}">전체</button>`;allTags.forEach(t=>{const c=tagColor(t);const active=activeTag===t;html+=`<button class="pill" onclick="setTag('${escHtml(t)}')" style="border-color:${c};background:${active?c:'transparent'};color:${active?'#fff':c}">${escHtml(t)}</button>`;});tagsRow.innerHTML=html;}
-const filtered=phrases.filter(p=>{const q=query.toLowerCase();const matchQ=!q||(p.japanese||"").toLowerCase().includes(q)||(p.reading||"").toLowerCase().includes(q)||(p.korean||"").toLowerCase().includes(q)||(p.note||"").toLowerCase().includes(q);const matchTag=!activeTag||p.tags.includes(activeTag);return matchQ&&matchTag;}).sort((a,b)=>b.createdAt-a.createdAt);const cards=document.getElementById("cards");if(filtered.length===0){cards.innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">${query||activeTag?"검색 결과가 없어요":"아직 표현이 없어요"}</div><div class="empty-sub">아래 + 버튼으로 추가해보세요</div></div>`;return;}
-cards.innerHTML=filtered.map(p=>{const isOpen=openCards.has(p.id);const tagsHtml=p.tags.map(t=>{const c=tagColor(t);return`<span class="pill" style="border-color:${c};background:${c};color:#fff;cursor:default">${escHtml(t)}</span>`;}).join("");return`<div class="card" id="card-${p.id}" onclick="toggleCard(${p.id})"><div class="card-top"><div style="flex:1"><div class="card-jp">${highlight(p.japanese)}</div>${p.reading&&p.reading!==p.japanese?`<div class="card-reading">${highlight(p.reading)}</div>`:""}<div class="card-kr">${highlight(p.korean)}</div></div><span class="card-arrow" id="arrow-${p.id}">${isOpen?"▲":"▼"}</span></div><div class="card-detail" id="detail-${p.id}" style="display:${isOpen?'block':'none'}">${p.source?`<div class="card-source">📌 <span>${escHtml(p.source)}</span></div>`:""} ${p.note?`<div class="card-note">💬 ${escHtml(p.note)}</div>`:""}<div class="card-tags">${tagsHtml}</div><div class="card-actions"><button class="card-btn btn-edit" onclick="event.stopPropagation();openModal(${p.id})">✏️ 수정</button><button class="card-btn btn-del" onclick="event.stopPropagation();deletePhrase(${p.id})">🗑️ 삭제</button></div></div></div>`;}).join("");}
-function startGame(){gameQueue=phrases.filter(p=>(p.korean||"").trim()&&(p.japanese||"").trim()).map(p=>({...p}));gameInitialCount=gameQueue.length;gameCurrent=null;gameAnswerShown=false;document.getElementById("gameOverlay").classList.add("open");renderGame();}
-function renderGame(){const content=document.getElementById("gameContent");const lang=language();if(gameInitialCount===0){content.innerHTML=`<div class="game-empty"><div class="game-empty-icon">📝</div><div class="game-message-title">먼저 표현을 추가해주세요</div><div class="game-message-sub">${lang.name} 표현을 추가하면 플래시카드 연습을 시작할 수 있어요.</div><button class="game-btn game-primary" onclick="closeGame()">나가기</button></div>`;return;}if(!gameCurrent)gameCurrent=gameQueue.shift();if(!gameCurrent){content.innerHTML=`<div class="game-complete"><div class="game-complete-icon">🎉</div><div class="game-message-title">모두 맞췄어요!</div><div class="game-message-sub">${lang.name} 표현을 끝까지 연습했습니다.</div><div class="game-actions"><button class="game-btn game-primary" onclick="restartGame()">다시 하기</button><button class="game-btn game-secondary" onclick="closeGame()">나가기</button></div></div>`;return;}content.innerHTML=`<div class="game-counter">남은 카드 ${gameQueue.length+1}개</div><div class="practice-card"><div class="practice-label">한국어 뜻</div><div class="practice-question">${escHtml(gameCurrent.korean||"")}</div><button class="game-btn game-primary" id="showAnswerBtn" onclick="showGameAnswer()" style="display:${gameAnswerShown?"none":"block"};width:100%">정답 보기</button><div class="practice-answer ${gameAnswerShown?"show":""}" id="practiceAnswer"><div class="practice-label">${lang.name} 원문</div><div class="practice-foreign">${escHtml(gameCurrent.japanese||"")}</div>${gameCurrent.reading?`<div class="practice-reading">${escHtml(gameCurrent.reading)}</div>`:""}</div><div class="game-result-row ${gameAnswerShown?"show":""}" id="gameResultRow"><button class="game-btn game-correct" onclick="markGameCorrect()">맞췄어요 ✅</button><button class="game-btn game-wrong" onclick="markGameWrong()">틀렸어요 ❌</button></div></div>`;}
-function showGameAnswer(){gameAnswerShown=true;renderGame();}
-function markGameCorrect(){gameCurrent=null;gameAnswerShown=false;renderGame();}
-function markGameWrong(){if(gameCurrent)gameQueue.push(gameCurrent);gameCurrent=null;gameAnswerShown=false;renderGame();}
-function restartGame(){startGame();}
-function closeGame(){document.getElementById("gameOverlay").classList.remove("open");gameQueue=[];gameCurrent=null;gameAnswerShown=false;gameInitialCount=0;}
-function toggleCard(id){if(openCards.has(id))openCards.delete(id);else openCards.add(id);const detail=document.getElementById("detail-"+id);const arrow=document.getElementById("arrow-"+id);if(detail){detail.style.display=openCards.has(id)?"block":"none";}if(arrow){arrow.textContent=openCards.has(id)?"▲":"▼";}}
-function setTag(t){activeTag=t;render();}
-function onSearch(){query=document.getElementById("searchInput").value;document.getElementById("searchClear").style.display=query?"block":"none";render();}
-function clearSearch(){document.getElementById("searchInput").value="";query="";document.getElementById("searchClear").style.display="none";render();}
-function openModal(id){editingId=id;selectedTags=[];const overlay=document.getElementById("overlay");overlay.style.display="flex";document.getElementById("modalTitle").textContent=id?"회화 수정":"새 회화 추가";if(id){const p=phrases.find(x=>x.id===id);document.getElementById("f-japanese").value=p.japanese||"";document.getElementById("f-reading").value=p.reading||"";document.getElementById("f-korean").value=p.korean||"";document.getElementById("f-source").value=p.source||"";document.getElementById("f-note").value=p.note||"";selectedTags=[...p.tags];}else{["f-japanese","f-reading","f-korean","f-source","f-note"].forEach(id=>document.getElementById(id).value="");}document.getElementById("tagInput").value="";renderModalTags();checkValid();}
-function closeModal(){document.getElementById("overlay").style.display="none";}
-function closeModalIfBg(e){if(e.target===document.getElementById("overlay"))closeModal();}
-function renderModalTags(){const allTags=getAllTags();const merged=[...new Set([...allTags,...selectedTags])];const container=document.getElementById("modalTags");container.innerHTML=merged.map(t=>{const c=tagColor(t);const active=selectedTags.includes(t);return`<button class="pill" onclick="toggleModalTag('${escHtml(t)}')" style="border-color:${c};background:${active?c:'transparent'};color:${active?'#fff':c}">${escHtml(t)}</button>`;}).join("");}
-function toggleModalTag(t){if(selectedTags.includes(t))selectedTags=selectedTags.filter(x=>x!==t);else selectedTags.push(t);renderModalTags();}
-function addTagFromInput(){const val=document.getElementById("tagInput").value.trim();if(val&&!selectedTags.includes(val))selectedTags.push(val);document.getElementById("tagInput").value="";renderModalTags();}
-function checkValid(){const jp=document.getElementById("f-japanese").value.trim();const kr=document.getElementById("f-korean").value.trim();document.getElementById("btnSave").disabled=!(jp&&kr);}
-function handleSave(){const jp=document.getElementById("f-japanese").value.trim();const kr=document.getElementById("f-korean").value.trim();if(!jp||!kr)return;const form={japanese:jp,reading:document.getElementById("f-reading").value.trim(),korean:kr,source:document.getElementById("f-source").value.trim(),note:document.getElementById("f-note").value.trim(),tags:[...selectedTags]};let savedPhrase;if(editingId){phrases=phrases.map(p=>{if(p.id!==editingId)return p;savedPhrase={...p,...form,updatedAt:Date.now()};return savedPhrase;});}else{savedPhrase={...form,id:Date.now(),createdAt:Date.now(),updatedAt:Date.now()};phrases.unshift(savedPhrase);}save();closeModal();render();upsertCloudPhrase(savedPhrase);}
-function deletePhrase(id){if(confirm("삭제할까요?")){phrases=phrases.filter(p=>p.id!==id);openCards.delete(id);save();render();deleteCloudPhrase(id);}}
-function handleExport(){const data=JSON.stringify(phrases,null,2);const blob=new Blob([data],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="일본어노트_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);}
-updateLanguageUi();
-load();
-initAuth();
-document.addEventListener("click",closeLanguageMenu);
-Object.assign(window,{handleAuth,handleExport,onSearch,clearSearch,setTag,toggleCard,openModal,closeModal,closeModalIfBg,toggleModalTag,addTagFromInput,checkValid,handleSave,deletePhrase,toggleLanguageMenu,selectLanguage,startGame,showGameAnswer,markGameCorrect,markGameWrong,restartGame,closeGame});
-if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").then((reg)=>authLog("serviceWorker registered",{scope:reg.scope})).catch((e)=>authError("serviceWorker register failed",e));});}
-</script>
-</body>
+      const STORAGE_KEY = "jp-study-phrases";
+      const LANGUAGE_KEY = "jp-note-language";
+      const LANGUAGES = {
+        english: {
+          flag: "🇺🇸",
+          name: "영어",
+          reading: "발음",
+          gradient: "linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)",
+          samplePlaceholder: "예: Take care",
+          sourcePlaceholder: "예: 유튜브 - English Addict",
+        },
+        chinese: {
+          flag: "🇨🇳",
+          name: "중국어",
+          reading: "병음",
+          gradient: "linear-gradient(135deg, #dc2626 0%, #f97316 100%)",
+          samplePlaceholder: "예: 你好",
+          sourcePlaceholder: "예: 유튜브 - 慢速中文",
+        },
+        japanese: {
+          flag: "🇯🇵",
+          name: "일본어",
+          reading: "히라가나",
+          gradient: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+          samplePlaceholder: "예: お疲れ様でした",
+          sourcePlaceholder: "예: 유튜브 - 日本語の森",
+        },
+        spanish: {
+          flag: "🇪🇸",
+          name: "스페인어",
+          reading: "발음",
+          gradient: "linear-gradient(135deg, #f97316 0%, #f59e0b 100%)",
+          samplePlaceholder: "예: Buenos días",
+          sourcePlaceholder: "예: 유튜브 - Español con Juan",
+        },
+        french: {
+          flag: "🇫🇷",
+          name: "프랑스어",
+          reading: "발음",
+          gradient: "linear-gradient(135deg, #0f766e 0%, #14b8a6 100%)",
+          samplePlaceholder: "예: Bonjour",
+          sourcePlaceholder: "예: 유튜브 - Français Authentique",
+        },
+      };
+      const TAG_COLORS = [
+        "#0ea5e9",
+        "#10b981",
+        "#f59e0b",
+        "#ef4444",
+        "#8b5cf6",
+        "#ec4899",
+        "#14b8a6",
+        "#f97316",
+      ];
+      const ALL_TAG_COLOR = "#4f46e5";
+      const SAMPLE = [
+        {
+          id: 1,
+          japanese: "いただきます",
+          reading: "いただきます",
+          korean: "잘 먹겠습니다 (식사 전 인사)",
+          source: "일상 회화",
+          tags: ["식사", "인사"],
+          note: "식사 시작 전 반드시 쓰는 표현",
+          createdAt: Date.now() - 10000,
+        },
+        {
+          id: 2,
+          japanese: "お疲れ様でした",
+          reading: "おつかれさまでした",
+          korean: "수고하셨습니다",
+          source: "유튜브 - 직장 드라마",
+          tags: ["직장", "인사"],
+          note: "퇴근할 때 동료에게",
+          createdAt: Date.now() - 8000,
+        },
+        {
+          id: 3,
+          japanese: "すみません、〜はどこですか？",
+          reading: "すみません、〜はどこですか？",
+          korean: "저기요, ~은 어디에 있나요?",
+          source: "여행 일본어 사이트",
+          tags: ["여행", "길 찾기"],
+          note: "〜 자리에 장소명 넣기",
+          createdAt: Date.now() - 5000,
+        },
+      ];
+      let phrases = [],
+        query = "",
+        activeTag = null,
+        editingId = null,
+        selectedTags = [],
+        openCards = new Set(),
+        currentUser = null,
+        hasLocalData = false,
+        authReady = false,
+        cloudUnsubscribe = null,
+        currentLanguage = localStorage.getItem(LANGUAGE_KEY) || "japanese",
+        gameQueue = [],
+        gameCurrent = null,
+        gameAnswerShown = false,
+        gameInitialCount = 0;
+      if (!LANGUAGES[currentLanguage]) currentLanguage = "japanese";
+      function language() {
+        return LANGUAGES[currentLanguage];
+      }
+      function storageKey() {
+        return `${STORAGE_KEY}-${currentLanguage}`;
+      }
+      function tagColor(tag) {
+        let hash = 0;
+        for (let i = 0; i < tag.length; i++)
+          hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+        return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
+      }
+      function load() {
+        try {
+          const raw =
+            localStorage.getItem(storageKey()) ||
+            (currentLanguage === "japanese"
+              ? localStorage.getItem(STORAGE_KEY)
+              : null);
+          hasLocalData = !!raw;
+          phrases = raw
+            ? JSON.parse(raw)
+            : currentLanguage === "japanese"
+            ? SAMPLE
+            : [];
+        } catch {
+          phrases = currentLanguage === "japanese" ? SAMPLE : [];
+        }
+        render();
+      }
+      function save() {
+        localStorage.setItem(storageKey(), JSON.stringify(phrases));
+      }
+      function userPhrasesRef() {
+        return collection(
+          db,
+          "users",
+          currentUser.uid,
+          "languages",
+          currentLanguage,
+          "phrases"
+        );
+      }
+      function phraseRef(id) {
+        return doc(
+          db,
+          "users",
+          currentUser.uid,
+          "languages",
+          currentLanguage,
+          "phrases",
+          String(id)
+        );
+      }
+      function cleanPhrase(p) {
+        return {
+          id: p.id,
+          japanese: p.japanese || "",
+          reading: p.reading || "",
+          korean: p.korean || "",
+          source: p.source || "",
+          note: p.note || "",
+          tags: Array.isArray(p.tags) ? p.tags : [],
+          createdAt: p.createdAt || Date.now(),
+          updatedAt: Date.now(),
+          syncedAt: serverTimestamp(),
+        };
+      }
+      function setSyncStatus(text) {
+        console.log("[AUTH]", text);
+      }
+      function authLog(step, detail = {}) {
+        console.log("[AUTH]", step, detail);
+      }
+      function authError(step, error) {
+        console.error("[AUTH]", step, {
+          code: error?.code,
+          message: error?.message,
+          name: error?.name,
+          error,
+        });
+      }
+      function renderLanguageMenu() {
+        const menu = document.getElementById("languageMenu");
+        menu.innerHTML = Object.entries(LANGUAGES)
+          .map(
+            ([key, lang]) =>
+              `<button class="language-option ${
+                key === currentLanguage ? "active" : ""
+              }" onclick="selectLanguage('${key}')"><span>${
+                lang.flag
+              }</span><span>${lang.name}</span></button>`
+          )
+          .join("");
+      }
+      function updateLanguageUi() {
+        const lang = language();
+        document.title = `${lang.flag} 나의 ${lang.name} 노트`;
+        document.documentElement.style.setProperty(
+          "--language-gradient",
+          lang.gradient
+        );
+        document.querySelector(".header-hero").style.background = lang.gradient;
+        document.getElementById("languageButton").textContent = lang.flag;
+        document.getElementById(
+          "headerTitle"
+        ).textContent = `나의 ${lang.name} 노트`;
+        document.getElementById(
+          "searchInput"
+        ).placeholder = `${lang.name} 또는 한국어로 검색`;
+        document.getElementById(
+          "japaneseLabel"
+        ).textContent = `${lang.name} 원문 *`;
+        document.getElementById(
+          "readingLabel"
+        ).textContent = `읽는 법 (${lang.reading})`;
+        document.getElementById("f-japanese").placeholder =
+          lang.samplePlaceholder;
+        document.getElementById("f-reading").placeholder =
+          lang.reading === "병음"
+            ? "예: nǐ hǎo"
+            : lang.reading === "히라가나"
+            ? "예: おつかれさまでした"
+            : "예: 발음 메모";
+        document.getElementById("f-source").placeholder =
+          lang.sourcePlaceholder;
+        document.getElementById(
+          "gameTitle"
+        ).textContent = `${lang.name} 연습 게임`;
+        renderLanguageMenu();
+      }
+      function toggleLanguageMenu(event) {
+        event.stopPropagation();
+        document.getElementById("languageMenu").classList.toggle("open");
+      }
+      function closeLanguageMenu() {
+        document.getElementById("languageMenu").classList.remove("open");
+      }
+      function selectLanguage(key) {
+        if (!LANGUAGES[key] || key === currentLanguage) {
+          closeLanguageMenu();
+          return;
+        }
+        authLog("language selected", { from: currentLanguage, to: key });
+        closeGame();
+        currentLanguage = key;
+        localStorage.setItem(LANGUAGE_KEY, currentLanguage);
+        closeLanguageMenu();
+        query = "";
+        activeTag = null;
+        openCards.clear();
+        document.getElementById("searchInput").value = "";
+        document.getElementById("searchClear").style.display = "none";
+        updateLanguageUi();
+        load();
+        if (currentUser) {
+          stopCloudSync();
+          startCloudSync();
+        }
+      }
+      function updateAuthUi() {
+        if (!authReady) {
+          authLog("updateAuthUi skipped (auth not ready)");
+          return;
+        }
+        const btn = document.getElementById("authButton");
+        if (currentUser) {
+          authLog("updateAuthUi signed in", {
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+          });
+          document.body.classList.remove("auth-locked", "auth-pending");
+          btn.textContent = "로그아웃";
+        } else {
+          authLog("updateAuthUi signed out -> show login gate");
+          document.body.classList.remove("auth-pending");
+          document.body.classList.add("auth-locked");
+          setSyncStatus("Google 로그인하면 Firebase에 자동 저장됩니다");
+        }
+      }
+      async function handleAuth() {
+        try {
+          if (currentUser) {
+            authLog("handleAuth logout start", { uid: currentUser.uid });
+            await signOut(auth);
+            authLog("handleAuth logout done");
+            return;
+          }
+          authLog("handleAuth popup start", {
+            href: location.href,
+            authDomain: firebaseConfig.authDomain,
+            standalone: window.matchMedia("(display-mode: standalone)").matches,
+          });
+          await setPersistence(auth, browserLocalPersistence);
+          authLog("handleAuth persistence set");
+          const result = await signInWithPopup(auth, provider);
+          authLog("handleAuth popup success", {
+            uid: result.user.uid,
+            email: result.user.email,
+            providerId: result.providerId,
+            operationType: result.operationType,
+          });
+        } catch (e) {
+          authError("handleAuth popup failed", e);
+          setSyncStatus(
+            "로그인 처리 실패: " + (e?.code || e?.message || "unknown")
+          );
+        }
+      }
+      async function initAuth() {
+        authLog("initAuth start", {
+          href: location.href,
+          search: location.search,
+          hash: location.hash,
+          authDomain: firebaseConfig.authDomain,
+        });
+        try {
+          authLog("initAuth setPersistence start");
+          await setPersistence(auth, browserLocalPersistence);
+          authLog("initAuth setPersistence done");
+        } catch (e) {
+          authError("initAuth setPersistence failed", e);
+        }
+        authLog("initAuth onAuthStateChanged subscribe");
+        onAuthStateChanged(auth, (user) => {
+          authLog("onAuthStateChanged", {
+            hasUser: !!user,
+            uid: user?.uid || null,
+            email: user?.email || null,
+            authReadyBefore: authReady,
+          });
+          stopCloudSync();
+          currentUser = user;
+          authReady = true;
+          if (user) {
+            authLog("onAuthStateChanged start cloud sync", { uid: user.uid });
+            startCloudSync();
+          } else {
+            phrases = [];
+            save();
+            render();
+            updateAuthUi();
+          }
+        });
+        authLog("initAuth currentUser after setup", {
+          uid: auth.currentUser?.uid || null,
+          email: auth.currentUser?.email || null,
+        });
+      }
+      async function upsertCloudPhrase(p) {
+        if (!currentUser) return;
+        try {
+          setSyncStatus("Firebase에 저장 중...");
+          await setDoc(phraseRef(p.id), cleanPhrase(p), { merge: true });
+          setSyncStatus("Firebase 자동 저장됨");
+        } catch (e) {
+          authError("upsertCloudPhrase failed", e);
+          setSyncStatus("Firebase 저장 실패 - 로컬에는 저장됨");
+        }
+      }
+      async function deleteCloudPhrase(id) {
+        if (!currentUser) return;
+        try {
+          setSyncStatus("Firebase에서 삭제 중...");
+          await deleteDoc(phraseRef(id));
+          setSyncStatus("Firebase 자동 저장됨");
+        } catch (e) {
+          authError("deleteCloudPhrase failed", e);
+          setSyncStatus("Firebase 삭제 실패 - 로컬에는 반영됨");
+        }
+      }
+      function stopCloudSync() {
+        if (cloudUnsubscribe) {
+          authLog("stopCloudSync");
+          cloudUnsubscribe();
+          cloudUnsubscribe = null;
+        }
+      }
+      function startCloudSync() {
+        if (!currentUser) return;
+        document.body.classList.add("auth-pending");
+        phrases = [];
+        openCards.clear();
+        render();
+        setSyncStatus("Firebase에서 불러오는 중...");
+        cloudUnsubscribe = onSnapshot(
+          userPhrasesRef(),
+          (snap) => {
+            authLog("cloud snapshot", {
+              count: snap.size,
+              empty: snap.empty,
+              fromCache: snap.metadata.fromCache,
+              hasPendingWrites: snap.metadata.hasPendingWrites,
+            });
+            phrases = snap.docs
+              .map((d) => d.data())
+              .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            save();
+            openCards.forEach((id) => {
+              if (!phrases.some((p) => p.id === id)) openCards.delete(id);
+            });
+            render();
+            updateAuthUi();
+            setSyncStatus("Firebase 클라우드 데이터와 동기화됨");
+          },
+          (e) => {
+            authError("cloud snapshot failed", e);
+            setSyncStatus("Firebase 동기화 실패");
+            updateAuthUi();
+          }
+        );
+      }
+      function getAllTags() {
+        const s = new Set();
+        phrases.forEach((p) => p.tags.forEach((t) => s.add(t)));
+        return [...s].sort();
+      }
+      function highlight(text) {
+        if (!query || !text) return escHtml(text || "");
+        const idx = text.toLowerCase().indexOf(query.toLowerCase());
+        if (idx === -1) return escHtml(text);
+        return (
+          escHtml(text.slice(0, idx)) +
+          `<mark>${escHtml(text.slice(idx, idx + query.length))}</mark>` +
+          escHtml(text.slice(idx + query.length))
+        );
+      }
+      function escHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+      function render() {
+        document.getElementById("count").textContent =
+          phrases.length + "개의 회화 표현";
+        const allTags = getAllTags();
+        const tagsRow = document.getElementById("tagsRow");
+        if (allTags.length === 0) {
+          tagsRow.innerHTML = "";
+        } else {
+          let html = `<button class="pill" onclick="setTag(null)" style="border-color:${ALL_TAG_COLOR};background:${
+            activeTag === null ? ALL_TAG_COLOR : "transparent"
+          };color:${
+            activeTag === null ? "#fff" : ALL_TAG_COLOR
+          }">전체</button>`;
+          allTags.forEach((t) => {
+            const c = tagColor(t);
+            const active = activeTag === t;
+            html += `<button class="pill" onclick="setTag('${escHtml(
+              t
+            )}')" style="border-color:${c};background:${
+              active ? c : "transparent"
+            };color:${active ? "#fff" : c}">${escHtml(t)}</button>`;
+          });
+          tagsRow.innerHTML = html;
+        }
+        const filtered = phrases
+          .filter((p) => {
+            const q = query.toLowerCase();
+            const matchQ =
+              !q ||
+              (p.japanese || "").toLowerCase().includes(q) ||
+              (p.reading || "").toLowerCase().includes(q) ||
+              (p.korean || "").toLowerCase().includes(q) ||
+              (p.note || "").toLowerCase().includes(q);
+            const matchTag = !activeTag || p.tags.includes(activeTag);
+            return matchQ && matchTag;
+          })
+          .sort((a, b) => b.createdAt - a.createdAt);
+        const cards = document.getElementById("cards");
+        if (filtered.length === 0) {
+          cards.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">${
+            query || activeTag ? "검색 결과가 없어요" : "아직 표현이 없어요"
+          }</div><div class="empty-sub">아래 + 버튼으로 추가해보세요</div></div>`;
+          return;
+        }
+        cards.innerHTML = filtered
+          .map((p) => {
+            const isOpen = openCards.has(p.id);
+            const tagsHtml = p.tags
+              .map((t) => {
+                const c = tagColor(t);
+                return `<span class="pill" style="border-color:${c};background:${c};color:#fff;cursor:default">${escHtml(
+                  t
+                )}</span>`;
+              })
+              .join("");
+            return `<div class="card" id="card-${p.id}" onclick="toggleCard(${
+              p.id
+            })"><div class="card-top"><div style="flex:1"><div class="card-jp">${highlight(
+              p.japanese
+            )}</div>${
+              p.reading && p.reading !== p.japanese
+                ? `<div class="card-reading">${highlight(p.reading)}</div>`
+                : ""
+            }<div class="card-kr">${highlight(
+              p.korean
+            )}</div></div><span class="card-arrow" id="arrow-${p.id}">${
+              isOpen ? "▲" : "▼"
+            }</span></div><div class="card-detail" id="detail-${
+              p.id
+            }" style="display:${isOpen ? "block" : "none"}">${
+              p.source
+                ? `<div class="card-source">📌 <span>${escHtml(
+                    p.source
+                  )}</span></div>`
+                : ""
+            } ${
+              p.note ? `<div class="card-note">💬 ${escHtml(p.note)}</div>` : ""
+            }<div class="card-tags">${tagsHtml}</div><div class="card-actions"><button class="card-btn btn-edit" onclick="event.stopPropagation();openModal(${
+              p.id
+            })">✏️ 수정</button><button class="card-btn btn-del" onclick="event.stopPropagation();deletePhrase(${
+              p.id
+            })">🗑️ 삭제</button></div></div></div>`;
+          })
+          .join("");
+      }
+      function startGame() {
+        gameQueue = phrases
+          .filter((p) => (p.korean || "").trim() && (p.japanese || "").trim())
+          .map((p) => ({ ...p }));
+        gameInitialCount = gameQueue.length;
+        gameCurrent = null;
+        gameAnswerShown = false;
+        document.getElementById("gameOverlay").classList.add("open");
+        renderGame();
+      }
+      function renderGame() {
+        const content = document.getElementById("gameContent");
+        const lang = language();
+        if (gameInitialCount === 0) {
+          content.innerHTML = `<div class="game-empty"><div class="game-empty-icon">📝</div><div class="game-message-title">먼저 표현을 추가해주세요</div><div class="game-message-sub">${lang.name} 표현을 추가하면 플래시카드 연습을 시작할 수 있어요.</div><button class="game-btn game-primary" onclick="closeGame()">나가기</button></div>`;
+          return;
+        }
+        if (!gameCurrent) gameCurrent = gameQueue.shift();
+        if (!gameCurrent) {
+          content.innerHTML = `<div class="game-complete"><div class="game-complete-icon">🎉</div><div class="game-message-title">모두 맞췄어요!</div><div class="game-message-sub">${lang.name} 표현을 끝까지 연습했습니다.</div><div class="game-actions"><button class="game-btn game-primary" onclick="restartGame()">다시 하기</button><button class="game-btn game-secondary" onclick="closeGame()">나가기</button></div></div>`;
+          return;
+        }
+        content.innerHTML = `<div class="game-counter">남은 카드 ${
+          gameQueue.length + 1
+        }개</div><div class="practice-card"><div class="practice-label">한국어 뜻</div><div class="practice-question">${escHtml(
+          gameCurrent.korean || ""
+        )}</div><button class="game-btn game-primary" id="showAnswerBtn" onclick="showGameAnswer()" style="display:${
+          gameAnswerShown ? "none" : "block"
+        };width:100%">정답 보기</button><div class="practice-answer ${
+          gameAnswerShown ? "show" : ""
+        }" id="practiceAnswer"><div class="practice-label">${
+          lang.name
+        } 원문</div><div class="practice-foreign">${escHtml(
+          gameCurrent.japanese || ""
+        )}</div>${
+          gameCurrent.reading
+            ? `<div class="practice-reading">${escHtml(
+                gameCurrent.reading
+              )}</div>`
+            : ""
+        }</div><div class="game-result-row ${
+          gameAnswerShown ? "show" : ""
+        }" id="gameResultRow"><button class="game-btn game-correct" onclick="markGameCorrect()">맞췄어요 ✅</button><button class="game-btn game-wrong" onclick="markGameWrong()">틀렸어요 ❌</button></div></div>`;
+      }
+      function showGameAnswer() {
+        gameAnswerShown = true;
+        renderGame();
+      }
+      function markGameCorrect() {
+        gameCurrent = null;
+        gameAnswerShown = false;
+        renderGame();
+      }
+      function markGameWrong() {
+        if (gameCurrent) gameQueue.push(gameCurrent);
+        gameCurrent = null;
+        gameAnswerShown = false;
+        renderGame();
+      }
+      function restartGame() {
+        startGame();
+      }
+      function closeGame() {
+        document.getElementById("gameOverlay").classList.remove("open");
+        gameQueue = [];
+        gameCurrent = null;
+        gameAnswerShown = false;
+        gameInitialCount = 0;
+      }
+      function toggleCard(id) {
+        if (openCards.has(id)) openCards.delete(id);
+        else openCards.add(id);
+        const detail = document.getElementById("detail-" + id);
+        const arrow = document.getElementById("arrow-" + id);
+        if (detail) {
+          detail.style.display = openCards.has(id) ? "block" : "none";
+        }
+        if (arrow) {
+          arrow.textContent = openCards.has(id) ? "▲" : "▼";
+        }
+      }
+      function setTag(t) {
+        activeTag = t;
+        render();
+      }
+      function onSearch() {
+        query = document.getElementById("searchInput").value;
+        document.getElementById("searchClear").style.display = query
+          ? "block"
+          : "none";
+        render();
+      }
+      function clearSearch() {
+        document.getElementById("searchInput").value = "";
+        query = "";
+        document.getElementById("searchClear").style.display = "none";
+        render();
+      }
+      function openModal(id) {
+        editingId = id;
+        selectedTags = [];
+        const overlay = document.getElementById("overlay");
+        overlay.style.display = "flex";
+        document.getElementById("modalTitle").textContent = id
+          ? "회화 수정"
+          : "새 회화 추가";
+        if (id) {
+          const p = phrases.find((x) => x.id === id);
+          document.getElementById("f-japanese").value = p.japanese || "";
+          document.getElementById("f-reading").value = p.reading || "";
+          document.getElementById("f-korean").value = p.korean || "";
+          document.getElementById("f-source").value = p.source || "";
+          document.getElementById("f-note").value = p.note || "";
+          selectedTags = [...p.tags];
+        } else {
+          ["f-japanese", "f-reading", "f-korean", "f-source", "f-note"].forEach(
+            (id) => (document.getElementById(id).value = "")
+          );
+        }
+        document.getElementById("tagInput").value = "";
+        renderModalTags();
+        checkValid();
+      }
+      function closeModal() {
+        document.getElementById("overlay").style.display = "none";
+      }
+      function closeModalIfBg(e) {
+        if (e.target === document.getElementById("overlay")) closeModal();
+      }
+      function renderModalTags() {
+        const allTags = getAllTags();
+        const merged = [...new Set([...allTags, ...selectedTags])];
+        const container = document.getElementById("modalTags");
+        container.innerHTML = merged
+          .map((t) => {
+            const c = tagColor(t);
+            const active = selectedTags.includes(t);
+            return `<button class="pill" onclick="toggleModalTag('${escHtml(
+              t
+            )}')" style="border-color:${c};background:${
+              active ? c : "transparent"
+            };color:${active ? "#fff" : c}">${escHtml(t)}</button>`;
+          })
+          .join("");
+      }
+      function toggleModalTag(t) {
+        if (selectedTags.includes(t))
+          selectedTags = selectedTags.filter((x) => x !== t);
+        else selectedTags.push(t);
+        renderModalTags();
+      }
+      function addTagFromInput() {
+        const val = document.getElementById("tagInput").value.trim();
+        if (val && !selectedTags.includes(val)) selectedTags.push(val);
+        document.getElementById("tagInput").value = "";
+        renderModalTags();
+      }
+      function checkValid() {
+        const jp = document.getElementById("f-japanese").value.trim();
+        const kr = document.getElementById("f-korean").value.trim();
+        document.getElementById("btnSave").disabled = !(jp && kr);
+      }
+      function handleSave() {
+        const jp = document.getElementById("f-japanese").value.trim();
+        const kr = document.getElementById("f-korean").value.trim();
+        if (!jp || !kr) return;
+        const form = {
+          japanese: jp,
+          reading: document.getElementById("f-reading").value.trim(),
+          korean: kr,
+          source: document.getElementById("f-source").value.trim(),
+          note: document.getElementById("f-note").value.trim(),
+          tags: [...selectedTags],
+        };
+        let savedPhrase;
+        if (editingId) {
+          phrases = phrases.map((p) => {
+            if (p.id !== editingId) return p;
+            savedPhrase = { ...p, ...form, updatedAt: Date.now() };
+            return savedPhrase;
+          });
+        } else {
+          savedPhrase = {
+            ...form,
+            id: Date.now(),
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+          };
+          phrases.unshift(savedPhrase);
+        }
+        save();
+        closeModal();
+        render();
+        upsertCloudPhrase(savedPhrase);
+      }
+      function deletePhrase(id) {
+        if (confirm("삭제할까요?")) {
+          phrases = phrases.filter((p) => p.id !== id);
+          openCards.delete(id);
+          save();
+          render();
+          deleteCloudPhrase(id);
+        }
+      }
+      function handleExport() {
+        const data = JSON.stringify(phrases, null, 2);
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download =
+          "일본어노트_" + new Date().toISOString().slice(0, 10) + ".json";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+      updateLanguageUi();
+      load();
+      initAuth();
+      document.addEventListener("click", closeLanguageMenu);
+      Object.assign(window, {
+        handleAuth,
+        handleExport,
+        onSearch,
+        clearSearch,
+        setTag,
+        toggleCard,
+        openModal,
+        closeModal,
+        closeModalIfBg,
+        toggleModalTag,
+        addTagFromInput,
+        checkValid,
+        handleSave,
+        deletePhrase,
+        toggleLanguageMenu,
+        selectLanguage,
+        startGame,
+        showGameAnswer,
+        markGameCorrect,
+        markGameWrong,
+        restartGame,
+        closeGame,
+      });
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) =>
+              authLog("serviceWorker registered", { scope: reg.scope })
+            )
+            .catch((e) => authError("serviceWorker register failed", e));
+        });
+      }
+      // ===== Gemini AI 번역 제안 기능 =====
+      const GEMINI_API_KEY =
+        "AQ.Ab8RN6LGFuHUm7DnXEFQu4LACu6Y5ABnTOZPYsIbKWqjMyDDVg"; // ← 여기에 발급받은 키 입력!
+
+      const LANG_CONFIG = {
+        ja: { name: "일본어", readingDesc: "히라가나 읽는 법" },
+        en: { name: "영어", readingDesc: "한국어식 발음" },
+        zh: { name: "중국어", readingDesc: "병음(Pinyin)" },
+        es: { name: "스페인어", readingDesc: "한국어식 발음" },
+        fr: { name: "프랑스어", readingDesc: "한국어식 발음" },
+      };
+
+      async function fetchGeminiSuggestions() {
+        const lang = currentLang || "ja";
+        const langCfg = LANG_CONFIG[lang];
+        const korText = document.getElementById("f-korean").value.trim();
+
+        if (!korText) {
+          alert("먼저 한국어 뜻을 입력해 주세요!");
+          return;
+        }
+
+        const btn = document.getElementById("ai-suggest-btn");
+        const panel = document.getElementById("ai-suggestions-panel");
+        const list = document.getElementById("ai-suggestions-list");
+
+        btn.disabled = true;
+        btn.classList.add("loading");
+        panel.classList.remove("visible");
+        list.innerHTML = "";
+
+        const prompt = `당신은 ${langCfg.name} 번역 전문가입니다.
+한국어 문장: "${korText}"
+이 표현을 ${langCfg.name}로 번역하는 자연스러운 옵션을 3가지 제시하세요.
+각 옵션은 뉘앙스가 조금씩 달라야 합니다 (격식/비격식, 공손/친근 등).
+반드시 아래 JSON 형식으로만 응답하세요. 설명 없이 JSON만:
+[
+  {
+    "original": "${langCfg.name} 원문",
+    "reading": "${langCfg.readingDesc}",
+    "nuance": "이 표현의 특징 15자 이내"
+  }
+]`;
+
+        try {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+              }),
+            }
+          );
+          if (!res.ok) throw new Error(`API 오류: ${res.status}`);
+          const data = await res.json();
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          const jsonStr = rawText
+            .replace(/```json\n?/g, "")
+            .replace(/```\n?/g, "")
+            .trim();
+          const suggestions = JSON.parse(jsonStr);
+
+          suggestions.forEach((s) => {
+            const card = document.createElement("div");
+            card.className = "ai-suggestion-card";
+            card.innerHTML = `
+        <div class="ai-card-original">${s.original}</div>
+        <div class="ai-card-reading">${s.reading}</div>
+        ${s.nuance ? `<div class="ai-card-nuance">💡 ${s.nuance}</div>` : ""}
+        <div class="ai-card-tap-hint">탭하여 자동 입력 →</div>
+      `;
+            card.addEventListener("click", () =>
+              applyAiSuggestion(s.original, s.reading, card)
+            );
+            list.appendChild(card);
+          });
+          panel.classList.add("visible");
+        } catch (err) {
+          list.innerHTML = `<div class="ai-error-msg">⚠️ 오류: ${err.message}</div>`;
+          panel.classList.add("visible");
+        } finally {
+          btn.disabled = false;
+          btn.classList.remove("loading");
+        }
+      }
+
+      function applyAiSuggestion(original, reading, clickedCard) {
+        document.getElementById("f-japanese").value = original;
+        document.getElementById("f-reading").value = reading;
+        document.querySelectorAll(".ai-suggestion-card").forEach((c) => {
+          c.style.border = "1px solid rgba(139,92,246,0.22)";
+          c.style.background = "rgba(139,92,246,0.08)";
+        });
+        clickedCard.style.border = "1.5px solid #8b5cf6";
+        clickedCard.style.background = "rgba(139,92,246,0.28)";
+        document.getElementById("f-japanese").focus();
+      }
+
+      function resetAiPanel() {
+        const panel = document.getElementById("ai-suggestions-panel");
+        const list = document.getElementById("ai-suggestions-list");
+        if (panel) panel.classList.remove("visible");
+        if (list) list.innerHTML = "";
+      }
+      // ===== Gemini AI 번역 제안 기능 끝 =====
+    </script>
+  </body>
 </html>
