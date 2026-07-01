@@ -926,7 +926,6 @@
               type="button"
               class="ai-btn"
               id="ai-suggest-btn"
-              onclick="fetchGeminiSuggestions()"
             >
               <div class="ai-spinner"></div>
               <span class="ai-btn-text">✨ AI 번역 제안</span>
@@ -973,7 +972,7 @@
         <div id="gameContent"></div>
       </div>
     </div>
-    <script>
+    <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
       import {
         getAnalytics,
@@ -1902,6 +1901,7 @@
         if (list) list.innerHTML = "";
       }
       // ===== Gemini AI 번역 제안 기능 끝 =====
+      document.getElementById('ai-suggest-btn').addEventListener('click', fetchGeminiSuggestions);
     </script>
   </body>
 </html>
