@@ -1798,15 +1798,15 @@
         "AQ.Ab8RN6LGFuHUm7DnXEFQu4LACu6Y5ABnTOZPYsIbKWqjMyDDVg"; // ← 여기에 발급받은 키 입력!
 
       const LANG_CONFIG = {
-        ja: { name: "일본어", readingDesc: "히라가나 읽는 법" },
-        en: { name: "영어", readingDesc: "한국어식 발음" },
-        zh: { name: "중국어", readingDesc: "병음(Pinyin)" },
-        es: { name: "스페인어", readingDesc: "한국어식 발음" },
-        fr: { name: "프랑스어", readingDesc: "한국어식 발음" },
+        japanese: { name: "일본어", readingDesc: "히라가나 읽는 법" },
+        english: { name: "영어", readingDesc: "한국어식 발음" },
+        chinese: { name: "중국어", readingDesc: "병음(Pinyin)" },
+        spanish: { name: "스페인어", readingDesc: "한국어식 발음" },
+        french: { name: "프랑스어", readingDesc: "한국어식 발음" },
       };
 
       async function fetchGeminiSuggestions() {
-        const lang = currentLang || "ja";
+        const lang = currentLanguage || "japanese";
         const langCfg = LANG_CONFIG[lang];
         const korText = document.getElementById("f-korean").value.trim();
 
