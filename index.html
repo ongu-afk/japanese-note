@@ -147,9 +147,13 @@
         color: #fff;
         font-size: 28px;
         line-height: 1;
-        padding: 0 0 0 14px;
+        padding: 0 0 0 10px;
         cursor: pointer;
         opacity: 1;
+      }
+      .header-right-btns {
+        display: flex;
+        align-items: center;
       }
       body.auth-pending .header,
       body.auth-pending .cards,
@@ -820,6 +824,198 @@
         border-radius: 8px;
         border: 1px solid rgba(239, 68, 68, 0.2);
       }
+      .ai-style-section {
+        margin-bottom: 16px;
+      }
+      .ai-style-header {
+        font-size: 13px;
+        font-weight: 800;
+        color: #c4b5fd;
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
+      }
+      .ai-style-extra {
+        margin-top: 0;
+      }
+      .ai-expand-btn {
+        width: 100%;
+        margin-top: 4px;
+        margin-bottom: 4px;
+        background: rgba(139, 92, 246, 0.1);
+        border: 1px dashed rgba(139, 92, 246, 0.35);
+        border-radius: 8px;
+        color: #a78bfa;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 8px 10px;
+        cursor: pointer;
+      }
+      .ai-expand-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .ai-settings-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        z-index: 120;
+        backdrop-filter: blur(2px);
+      }
+      .ai-settings-overlay.open {
+        display: flex;
+      }
+      .ai-settings-modal {
+        background: #18181b;
+        border-radius: 20px 20px 0 0;
+        padding: 24px 20px 32px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 92vh;
+        overflow-y: auto;
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+      }
+      .ai-settings-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .ai-settings-tab {
+        flex: 1;
+        background: #27272a;
+        border: 1.5px solid #3f3f46;
+        border-radius: 10px;
+        padding: 10px 0;
+        font-size: 22px;
+        cursor: pointer;
+        line-height: 1;
+      }
+      .ai-settings-tab.active {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.15);
+      }
+      .ai-settings-hint {
+        color: #71717a;
+        font-size: 12px;
+        margin-bottom: 18px;
+      }
+      .ai-settings-section {
+        margin-bottom: 20px;
+      }
+      .ai-settings-section label {
+        display: block;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+      .ai-settings-desc {
+        color: #71717a;
+        font-size: 12px;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      .ai-character-input {
+        width: 100%;
+        min-height: 100px;
+        background: #27272a;
+        border: 1.5px solid #3f3f46;
+        border-radius: 10px;
+        padding: 10px 12px;
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.5;
+      }
+      .ai-character-input::placeholder {
+        color: #52525b;
+      }
+      .ai-styles-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .ai-style-config-card {
+        background: #27272a;
+        border: 1.5px solid #3f3f46;
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .ai-style-config-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .ai-style-check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #a1a1aa;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .ai-style-check input {
+        width: 16px;
+        height: 16px;
+        accent-color: #8b5cf6;
+      }
+      .ai-style-delete {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        opacity: 0.7;
+        padding: 2px 4px;
+      }
+      .ai-style-name {
+        width: 100%;
+        background: #18181b;
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 700;
+        outline: none;
+        margin-bottom: 8px;
+      }
+      .ai-style-desc {
+        width: 100%;
+        background: #18181b;
+        border: 1px solid #3f3f46;
+        border-radius: 8px;
+        padding: 8px 10px;
+        color: #fff;
+        font-size: 13px;
+        outline: none;
+        resize: vertical;
+        min-height: 56px;
+        font-family: inherit;
+        line-height: 1.4;
+      }
+      .btn-add-style {
+        width: 100%;
+        background: rgba(139, 92, 246, 0.12);
+        border: 1px dashed rgba(139, 92, 246, 0.4);
+        border-radius: 10px;
+        color: #a78bfa;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 10px;
+        cursor: pointer;
+        margin-bottom: 16px;
+      }
+      body.auth-pending .ai-settings-overlay,
+      body.auth-locked .ai-settings-overlay {
+        display: none !important;
+      }
     </style>
   </head>
   <body class="auth-pending">
@@ -864,13 +1060,22 @@
               <div class="header-count" id="count">0개의 회화 표현</div>
             </div>
           </div>
-          <button
-            class="game-start-btn"
-            onclick="startGame()"
-            title="연습 게임"
-          >
-            🔥
-          </button>
+          <div class="header-right-btns">
+            <button
+              class="game-start-btn"
+              onclick="openAiSettings()"
+              title="AI 설정"
+            >
+              ⚙️
+            </button>
+            <button
+              class="game-start-btn"
+              onclick="startGame()"
+              title="연습 게임"
+            >
+              🔥
+            </button>
+          </div>
         </div>
       </div>
       <div class="search-wrap">
@@ -891,6 +1096,38 @@
     <button class="fab" onclick="openModal(null)">
       <span style="font-size: 20px; line-height: 1">+</span> 표현 추가
     </button>
+    <div class="ai-settings-overlay" id="aiSettingsOverlay" onclick="closeAiSettingsIfBg(event)">
+      <div class="ai-settings-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <span class="modal-title">⚙️ AI 설정</span>
+          <button class="modal-close" onclick="closeAiSettings()">×</button>
+        </div>
+        <div class="ai-settings-tabs" id="aiSettingsTabs"></div>
+        <p class="ai-settings-hint">언어별로 따로 저장돼요</p>
+        <div class="ai-settings-section">
+          <label>🎭 캐릭터 설정</label>
+          <p class="ai-settings-desc">AI가 어떤 사람이 되어 번역할지 알려주세요</p>
+          <textarea
+            class="ai-character-input"
+            id="aiCharacterInput"
+            placeholder="예: 너는 도쿄에 사는 25살 MZ세대 일본인이야. SNS나 유튜브에서 실제로 쓰는 자연스러운 표현으로 번역해줘."
+          ></textarea>
+        </div>
+        <div class="ai-settings-section">
+          <label>🎨 옵션 스타일</label>
+          <p class="ai-settings-desc">
+            체크한 스타일별로 각 1개씩 옵션이 나와요. '더 보기' 누르면 그 스타일로 3개 추가됩니다.
+          </p>
+          <div class="ai-styles-list" id="aiStylesList"></div>
+          <button type="button" class="btn-add-style" onclick="addAiStyle()">
+            + 스타일 추가
+          </button>
+        </div>
+        <button type="button" class="btn-save" onclick="saveAiSettings()">
+          저장하기
+        </button>
+      </div>
+    </div>
     <div class="overlay" id="overlay" onclick="closeModalIfBg(event)">
       <div class="modal" onclick="event.stopPropagation()">
         <div class="modal-header">
@@ -1661,6 +1898,7 @@
         }
         document.getElementById("tagInput").value = "";
         renderModalTags();
+        resetAiPanel();
         checkValid();
       }
       function closeModal() {
@@ -1804,9 +2042,250 @@
         spanish: { name: "스페인어", readingDesc: "한국어식 발음" },
         french: { name: "프랑스어", readingDesc: "한국어식 발음" },
       };
+      const LANG_CODES = {
+        english: "en",
+        chinese: "zh",
+        japanese: "ja",
+        spanish: "es",
+        french: "fr",
+      };
+      const AI_SETTINGS_TABS = [
+        { code: "en", flag: "🇺🇸" },
+        { code: "zh", flag: "🇨🇳" },
+        { code: "ja", flag: "🇯🇵" },
+        { code: "es", flag: "🇪🇸" },
+        { code: "fr", flag: "🇫🇷" },
+      ];
+      const DEFAULT_AI_STYLES = [
+        {
+          id: "formal",
+          name: "격식체",
+          description:
+            "정중하고 격식있는 표현. 처음 만난 사람이나 윗사람한테 쓰는 말투",
+          active: true,
+        },
+        {
+          id: "casual",
+          name: "친근함",
+          description: "친한 친구한테 편하게 말하듯이. 반말이나 캐주얼한 표현",
+          active: true,
+        },
+        {
+          id: "trendy",
+          name: "유행어",
+          description:
+            "SNS, 틱톡, 인스타에서 요즘 쓰는 표현. 젊은 사람들이 실제로 쓰는 말투",
+          active: true,
+        },
+        {
+          id: "business",
+          name: "비즈니스",
+          description: "직장에서 상사나 거래처에 쓰는 표현. 프로페셔널한 톤",
+          active: true,
+        },
+        {
+          id: "literal",
+          name: "직역",
+          description:
+            "한국어 원문의 어감과 뉘앙스를 최대한 살려서 직역에 가깝게",
+          active: true,
+        },
+      ];
+      const STYLE_EMOJIS = {
+        formal: "🎩",
+        casual: "😊",
+        trendy: "🔥",
+        business: "💼",
+        literal: "📖",
+      };
       const AI_SUGGEST_DEBOUNCE_MS = 3000;
       let lastAiSuggestAt = 0;
+      let aiSettingsTab = "ja";
+      let aiSettingsDrafts = {};
+      let aiSuggestionExpanded = {};
+      let lastAiKorText = "";
 
+      function getLangCode(lang = currentLanguage) {
+        return LANG_CODES[lang] || "ja";
+      }
+      function aiCharacterKey(code) {
+        return `aiCharacter_${code}`;
+      }
+      function aiStylesKey(code) {
+        return `aiStyles_${code}`;
+      }
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function escapeAttr(str) {
+        return escapeHtml(str).replace(/'/g, "&#39;");
+      }
+      function getDefaultAiStyles() {
+        return DEFAULT_AI_STYLES.map((s) => ({ ...s }));
+      }
+      function loadAiCharacter(code) {
+        return localStorage.getItem(aiCharacterKey(code)) || "";
+      }
+      function loadAiStyles(code) {
+        const raw = localStorage.getItem(aiStylesKey(code));
+        if (!raw) return getDefaultAiStyles();
+        try {
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) && parsed.length
+            ? parsed
+            : getDefaultAiStyles();
+        } catch {
+          return getDefaultAiStyles();
+        }
+      }
+      function saveAiCharacter(code, value) {
+        localStorage.setItem(aiCharacterKey(code), value);
+      }
+      function saveAiStyles(code, styles) {
+        localStorage.setItem(aiStylesKey(code), JSON.stringify(styles));
+      }
+      function getAiDraft(code) {
+        if (!aiSettingsDrafts[code]) {
+          aiSettingsDrafts[code] = {
+            character: loadAiCharacter(code),
+            styles: loadAiStyles(code),
+          };
+        }
+        return aiSettingsDrafts[code];
+      }
+      function styleEmoji(style) {
+        return STYLE_EMOJIS[style.id] || "✨";
+      }
+      function openAiSettings() {
+        aiSettingsTab = getLangCode(currentLanguage);
+        aiSettingsDrafts = {};
+        renderAiSettingsTabs();
+        renderAiSettingsForm();
+        document.getElementById("aiSettingsOverlay").classList.add("open");
+      }
+      function closeAiSettings() {
+        document.getElementById("aiSettingsOverlay").classList.remove("open");
+      }
+      function closeAiSettingsIfBg(e) {
+        if (e.target.id === "aiSettingsOverlay") closeAiSettings();
+      }
+      function syncAiSettingsDraftFromDom() {
+        const draft = getAiDraft(aiSettingsTab);
+        draft.character = document.getElementById("aiCharacterInput").value;
+        document.querySelectorAll(".ai-style-config-card").forEach((card) => {
+          const styleId = card.dataset.styleId;
+          const style = draft.styles.find((s) => s.id === styleId);
+          if (!style) return;
+          style.active = card.querySelector('[data-field="active"]').checked;
+          style.name = card.querySelector('[data-field="name"]').value.trim();
+          style.description = card
+            .querySelector('[data-field="description"]')
+            .value.trim();
+        });
+      }
+      function renderAiSettingsTabs() {
+        const tabs = document.getElementById("aiSettingsTabs");
+        tabs.innerHTML = AI_SETTINGS_TABS.map(
+          (t) =>
+            `<button type="button" class="ai-settings-tab ${
+              t.code === aiSettingsTab ? "active" : ""
+            }" data-code="${t.code}">${t.flag}</button>`
+        ).join("");
+        tabs.querySelectorAll(".ai-settings-tab").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            syncAiSettingsDraftFromDom();
+            aiSettingsTab = btn.dataset.code;
+            renderAiSettingsTabs();
+            renderAiSettingsForm();
+          });
+        });
+      }
+      function renderAiSettingsForm() {
+        const draft = getAiDraft(aiSettingsTab);
+        document.getElementById("aiCharacterInput").value = draft.character;
+        const list = document.getElementById("aiStylesList");
+        list.innerHTML = "";
+        draft.styles.forEach((style) => {
+          const card = document.createElement("div");
+          card.className = "ai-style-config-card";
+          card.dataset.styleId = style.id;
+          card.innerHTML = `
+            <div class="ai-style-config-top">
+              <label class="ai-style-check">
+                <input type="checkbox" data-field="active" ${
+                  style.active ? "checked" : ""
+                } />
+                <span>사용</span>
+              </label>
+              <button type="button" class="ai-style-delete" title="삭제">🗑</button>
+            </div>
+            <input type="text" class="ai-style-name" data-field="name" value="${escapeAttr(
+              style.name
+            )}" placeholder="스타일 이름" />
+            <textarea class="ai-style-desc" data-field="description" rows="2" placeholder="설명">${escapeHtml(
+              style.description
+            )}</textarea>
+          `;
+          card.querySelector(".ai-style-delete").addEventListener("click", () => {
+            syncAiSettingsDraftFromDom();
+            const d = getAiDraft(aiSettingsTab);
+            d.styles = d.styles.filter((s) => s.id !== style.id);
+            renderAiSettingsForm();
+          });
+          list.appendChild(card);
+        });
+      }
+      function addAiStyle() {
+        syncAiSettingsDraftFromDom();
+        const draft = getAiDraft(aiSettingsTab);
+        draft.styles.push({
+          id: "custom_" + Date.now(),
+          name: "새 스타일",
+          description: "",
+          active: true,
+        });
+        renderAiSettingsForm();
+      }
+      function saveAiSettings() {
+        syncAiSettingsDraftFromDom();
+        const draft = getAiDraft(aiSettingsTab);
+        saveAiCharacter(aiSettingsTab, draft.character);
+        saveAiStyles(aiSettingsTab, draft.styles);
+        closeAiSettings();
+      }
+      function buildGeminiPrompt(
+        korText,
+        langCfg,
+        character,
+        styles,
+        { singleStyle = null, optionCount = null } = {}
+      ) {
+        const activeStyles = singleStyle
+          ? [singleStyle]
+          : styles.filter((s) => s.active);
+        let prompt = "";
+        if (character && character.trim()) {
+          prompt += character.trim() + "\n\n";
+        }
+        prompt += `한국어 문장: "${korText}"\n`;
+        if (singleStyle && optionCount) {
+          prompt += `이 표현을 ${langCfg.name}로 번역하되, 아래 스타일로 ${optionCount}가지 옵션을 만들어주세요:\n\n`;
+          prompt += `${singleStyle.name}: ${singleStyle.description}\n\n`;
+          prompt += `각 옵션의 nuance 필드에는 반드시 "${singleStyle.name}" 스타일임을 표시해주세요.`;
+        } else {
+          prompt += `이 표현을 ${langCfg.name}로 번역하되, 아래 스타일별로 각 1개씩 만들어주세요:\n\n`;
+          activeStyles.forEach((s) => {
+            prompt += `${s.name}: ${s.description}\n`;
+          });
+          prompt += `\n각 옵션의 nuance 필드에는 반드시 어떤 스타일인지 표시해주세요.`;
+        }
+        prompt += `\nreading 필드에는 쌍따옴표나 백슬래시 쓰지 마세요.`;
+        return prompt;
+      }
       async function callGeminiApi(prompt) {
         const res = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -1846,7 +2325,6 @@
         }
         return res.json();
       }
-
       function parseGeminiSuggestions(data) {
         const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
         const jsonStr = rawText
@@ -1855,95 +2333,173 @@
           .trim();
         return JSON.parse(jsonStr);
       }
-
       async function callGeminiApiWith429Retry(prompt, list, panel) {
         try {
           return await callGeminiApi(prompt);
         } catch (err) {
           if (err.status === 429) {
-            list.innerHTML = `<div class="ai-error-msg">⏳ 잠시 후 자동 재시도 중...</div>`;
-            panel.classList.add("visible");
+            if (list) {
+              list.innerHTML = `<div class="ai-error-msg">⏳ 잠시 후 자동 재시도 중...</div>`;
+              panel.classList.add("visible");
+            }
             await new Promise((resolve) => setTimeout(resolve, 5000));
             return await callGeminiApi(prompt);
           }
           throw err;
         }
       }
-
       async function fetchGeminiSuggestionsData(prompt, list, panel) {
         const data = await callGeminiApiWith429Retry(prompt, list, panel);
         try {
           return parseGeminiSuggestions(data);
         } catch (parseErr) {
-          list.innerHTML = `<div class="ai-error-msg">⏳ 응답 형식 오류, 재요청 중...</div>`;
-          panel.classList.add("visible");
+          if (list) {
+            list.innerHTML = `<div class="ai-error-msg">⏳ 응답 형식 오류, 재요청 중...</div>`;
+            panel.classList.add("visible");
+          }
           const retryData = await callGeminiApiWith429Retry(prompt, list, panel);
           return parseGeminiSuggestions(retryData);
         }
       }
-
+      function createSuggestionCard(s) {
+        const card = document.createElement("div");
+        card.className = "ai-suggestion-card";
+        card.innerHTML = `
+        <div class="ai-card-original">${escapeHtml(s.original)}</div>
+        <div class="ai-card-reading">${escapeHtml(s.reading)}</div>
+        ${
+          s.nuance
+            ? `<div class="ai-card-nuance">💡 ${escapeHtml(s.nuance)}</div>`
+            : ""
+        }
+        <div class="ai-card-tap-hint">탭하여 자동 입력 →</div>
+      `;
+        card.addEventListener("click", () => applyAiSuggestion(s.original, s.reading, card));
+        return card;
+      }
+      function findSuggestionForStyle(suggestions, style, index) {
+        const byNuance = suggestions.find(
+          (s) => s.nuance && s.nuance.includes(style.name)
+        );
+        return byNuance || suggestions[index] || null;
+      }
+      function renderAiSuggestionsByStyle(suggestions, activeStyles, korText) {
+        const list = document.getElementById("ai-suggestions-list");
+        list.innerHTML = "";
+        lastAiKorText = korText;
+        aiSuggestionExpanded = {};
+        activeStyles.forEach((style, index) => {
+          const section = document.createElement("div");
+          section.className = "ai-style-section";
+          section.dataset.styleId = style.id;
+          const header = document.createElement("div");
+          header.className = "ai-style-header";
+          header.textContent = `${styleEmoji(style)} ${style.name}`;
+          const cardsWrap = document.createElement("div");
+          cardsWrap.className = "ai-style-cards";
+          const extraWrap = document.createElement("div");
+          extraWrap.className = "ai-style-extra";
+          extraWrap.style.display = "none";
+          const suggestion = findSuggestionForStyle(suggestions, style, index);
+          if (suggestion) {
+            cardsWrap.appendChild(createSuggestionCard(suggestion));
+          }
+          const expandBtn = document.createElement("button");
+          expandBtn.type = "button";
+          expandBtn.className = "ai-expand-btn";
+          expandBtn.textContent = `+ ${style.name} 로 더 보기`;
+          expandBtn.addEventListener("click", () =>
+            toggleStyleExpand(style, expandBtn, extraWrap)
+          );
+          section.appendChild(header);
+          section.appendChild(cardsWrap);
+          section.appendChild(extraWrap);
+          section.appendChild(expandBtn);
+          list.appendChild(section);
+        });
+      }
+      async function toggleStyleExpand(style, btn, extraWrap) {
+        if (aiSuggestionExpanded[style.id]) {
+          extraWrap.innerHTML = "";
+          extraWrap.style.display = "none";
+          aiSuggestionExpanded[style.id] = false;
+          btn.textContent = `+ ${style.name} 로 더 보기`;
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = "불러오는 중...";
+        try {
+          const lang = currentLanguage || "japanese";
+          const langCfg = LANG_CONFIG[lang];
+          const code = getLangCode(lang);
+          const character = loadAiCharacter(code);
+          const prompt = buildGeminiPrompt(lastAiKorText, langCfg, character, [], {
+            singleStyle: style,
+            optionCount: 3,
+          });
+          const panel = document.getElementById("ai-suggestions-panel");
+          const list = document.getElementById("ai-suggestions-list");
+          const suggestions = await fetchGeminiSuggestionsData(
+            prompt,
+            null,
+            panel
+          );
+          extraWrap.innerHTML = "";
+          suggestions.forEach((s) => {
+            extraWrap.appendChild(createSuggestionCard(s));
+          });
+          extraWrap.style.display = "block";
+          aiSuggestionExpanded[style.id] = true;
+          btn.textContent = "− 접기";
+        } catch (err) {
+          const msg =
+            err.status === 429 ? err.message : err.message || "더 보기 실패";
+          alert(msg);
+          btn.textContent = `+ ${style.name} 로 더 보기`;
+        } finally {
+          btn.disabled = false;
+        }
+      }
       async function fetchGeminiSuggestions() {
         const now = Date.now();
         if (now - lastAiSuggestAt < AI_SUGGEST_DEBOUNCE_MS) return;
         lastAiSuggestAt = now;
-
         const lang = currentLanguage || "japanese";
         const langCfg = LANG_CONFIG[lang];
+        const code = getLangCode(lang);
+        const character = loadAiCharacter(code);
+        const styles = loadAiStyles(code);
+        const activeStyles = styles.filter((s) => s.active);
         const korText = document.getElementById("f-korean").value.trim();
-
         if (!korText) {
           alert("먼저 한국어 뜻을 입력해 주세요!");
           lastAiSuggestAt = 0;
           return;
         }
-
+        if (!activeStyles.length) {
+          alert("AI 설정에서 활성화된 스타일이 없어요. ⚙️ 설정에서 스타일을 켜주세요.");
+          lastAiSuggestAt = 0;
+          return;
+        }
         const btn = document.getElementById("ai-suggest-btn");
         const panel = document.getElementById("ai-suggestions-panel");
         const list = document.getElementById("ai-suggestions-list");
-
         btn.disabled = true;
         btn.classList.add("loading");
         panel.classList.remove("visible");
         list.innerHTML = "";
-
-        const prompt = `당신은 ${langCfg.name} 번역 전문가입니다.
-한국어 문장: "${korText}"
-이 표현을 ${langCfg.name}로 번역하는 자연스러운 옵션을 3가지 제시하세요.
-각 옵션은 뉘앙스가 조금씩 달라야 합니다 (격식/비격식, 공손/친근 등).
-반드시 아래 JSON 형식으로만 응답하세요. 설명 없이 JSON만.
-reading 필드에는 쌍따옴표나 백슬래시 쓰지 마세요:
-[
-  {
-    "original": "${langCfg.name} 원문",
-    "reading": "${langCfg.readingDesc}",
-    "nuance": "이 표현의 특징 15자 이내"
-  }
-]`;
-
+        const prompt = buildGeminiPrompt(korText, langCfg, character, styles);
         try {
-          const suggestions = await fetchGeminiSuggestionsData(prompt, list, panel);
-
-          list.innerHTML = "";
-          suggestions.forEach((s) => {
-            const card = document.createElement("div");
-            card.className = "ai-suggestion-card";
-            card.innerHTML = `
-        <div class="ai-card-original">${s.original}</div>
-        <div class="ai-card-reading">${s.reading}</div>
-        ${s.nuance ? `<div class="ai-card-nuance">💡 ${s.nuance}</div>` : ""}
-        <div class="ai-card-tap-hint">탭하여 자동 입력 →</div>
-      `;
-            card.addEventListener("click", () =>
-              applyAiSuggestion(s.original, s.reading, card)
-            );
-            list.appendChild(card);
-          });
+          const suggestions = await fetchGeminiSuggestionsData(
+            prompt,
+            list,
+            panel
+          );
+          renderAiSuggestionsByStyle(suggestions, activeStyles, korText);
           panel.classList.add("visible");
         } catch (err) {
           const msg =
-            err.status === 429
-              ? err.message
-              : `⚠️ 오류: ${err.message}`;
+            err.status === 429 ? err.message : `⚠️ 오류: ${err.message}`;
           list.innerHTML = `<div class="ai-error-msg">${msg}</div>`;
           panel.classList.add("visible");
         } finally {
@@ -1951,7 +2507,6 @@ reading 필드에는 쌍따옴표나 백슬래시 쓰지 마세요:
           btn.classList.remove("loading");
         }
       }
-
       function applyAiSuggestion(original, reading, clickedCard) {
         document.getElementById("f-japanese").value = original;
         document.getElementById("f-reading").value = reading;
@@ -1963,15 +2518,25 @@ reading 필드에는 쌍따옴표나 백슬래시 쓰지 마세요:
         clickedCard.style.background = "rgba(139,92,246,0.28)";
         document.getElementById("f-japanese").focus();
       }
-
       function resetAiPanel() {
         const panel = document.getElementById("ai-suggestions-panel");
         const list = document.getElementById("ai-suggestions-list");
         if (panel) panel.classList.remove("visible");
         if (list) list.innerHTML = "";
+        aiSuggestionExpanded = {};
+        lastAiKorText = "";
       }
       // ===== Gemini AI 번역 제안 기능 끝 =====
-      document.getElementById('ai-suggest-btn').addEventListener('click', fetchGeminiSuggestions);
+      document
+        .getElementById("ai-suggest-btn")
+        .addEventListener("click", fetchGeminiSuggestions);
+      Object.assign(window, {
+        openAiSettings,
+        closeAiSettings,
+        closeAiSettingsIfBg,
+        addAiStyle,
+        saveAiSettings,
+      });
     </script>
   </body>
 </html>
