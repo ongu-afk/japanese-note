@@ -1849,7 +1849,12 @@
               }),
             }
           );
-          if (!res.ok) throw new Error(`API 오류: ${res.status}`);
+          if (!res.ok) {
+            if (res.status === 429) {
+              throw new Error("⏳ 요청이 많아요! 1~2분 후 다시 눌러주세요 😊");
+            }
+            throw new Error(`API 오류: ${res.status}`);
+          }
           const data = await res.json();
           const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
           const jsonStr = rawText
