@@ -1804,14 +1804,45 @@
         spanish: { name: "스페인어", readingDesc: "한국어식 발음" },
         french: { name: "프랑스어", readingDesc: "한국어식 발음" },
       };
+      const AI_SUGGEST_DEBOUNCE_MS = 3000;
+      let lastAiSuggestAt = 0;
+
+      async function callGeminiApi(prompt) {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+            }),
+          }
+        );
+        if (!res.ok) {
+          const err = new Error(
+            res.status === 429
+              ? "⏳ 요청이 많아요! 1~2분 후 다시 눌러주세요 😊"
+              : `API 오류: ${res.status}`
+          );
+          err.status = res.status;
+          throw err;
+        }
+        return res.json();
+      }
 
       async function fetchGeminiSuggestions() {
+        const now = Date.now();
+        if (now - lastAiSuggestAt < AI_SUGGEST_DEBOUNCE_MS) return;
+        lastAiSuggestAt = now;
+
         const lang = currentLanguage || "japanese";
         const langCfg = LANG_CONFIG[lang];
         const korText = document.getElementById("f-korean").value.trim();
 
         if (!korText) {
           alert("먼저 한국어 뜻을 입력해 주세요!");
+          lastAiSuggestAt = 0;
           return;
         }
 
@@ -1838,24 +1869,20 @@
 ]`;
 
         try {
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
-              }),
+          let data;
+          try {
+            data = await callGeminiApi(prompt);
+          } catch (err) {
+            if (err.status === 429) {
+              list.innerHTML = `<div class="ai-error-msg">⏳ 잠시 후 자동 재시도 중...</div>`;
+              panel.classList.add("visible");
+              await new Promise((resolve) => setTimeout(resolve, 5000));
+              data = await callGeminiApi(prompt);
+            } else {
+              throw err;
             }
-          );
-          if (!res.ok) {
-            if (res.status === 429) {
-              throw new Error("⏳ 요청이 많아요! 1~2분 후 다시 눌러주세요 😊");
-            }
-            throw new Error(`API 오류: ${res.status}`);
           }
-          const data = await res.json();
+
           const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
           const jsonStr = rawText
             .replace(/```json\n?/g, "")
@@ -1863,6 +1890,7 @@
             .trim();
           const suggestions = JSON.parse(jsonStr);
 
+          list.innerHTML = "";
           suggestions.forEach((s) => {
             const card = document.createElement("div");
             card.className = "ai-suggestion-card";
@@ -1879,7 +1907,11 @@
           });
           panel.classList.add("visible");
         } catch (err) {
-          list.innerHTML = `<div class="ai-error-msg">⚠️ 오류: ${err.message}</div>`;
+          const msg =
+            err.status === 429
+              ? err.message
+              : `⚠️ 오류: ${err.message}`;
+          list.innerHTML = `<div class="ai-error-msg">${msg}</div>`;
           panel.classList.add("visible");
         } finally {
           btn.disabled = false;
