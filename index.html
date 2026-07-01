@@ -1831,6 +1831,41 @@
         return res.json();
       }
 
+      function parseGeminiSuggestions(data) {
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const jsonStr = rawText
+          .replace(/```json\n?/g, "")
+          .replace(/```\n?/g, "")
+          .trim();
+        return JSON.parse(jsonStr);
+      }
+
+      async function callGeminiApiWith429Retry(prompt, list, panel) {
+        try {
+          return await callGeminiApi(prompt);
+        } catch (err) {
+          if (err.status === 429) {
+            list.innerHTML = `<div class="ai-error-msg">⏳ 잠시 후 자동 재시도 중...</div>`;
+            panel.classList.add("visible");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+            return await callGeminiApi(prompt);
+          }
+          throw err;
+        }
+      }
+
+      async function fetchGeminiSuggestionsData(prompt, list, panel) {
+        const data = await callGeminiApiWith429Retry(prompt, list, panel);
+        try {
+          return parseGeminiSuggestions(data);
+        } catch (parseErr) {
+          list.innerHTML = `<div class="ai-error-msg">⏳ 응답 형식 오류, 재요청 중...</div>`;
+          panel.classList.add("visible");
+          const retryData = await callGeminiApiWith429Retry(prompt, list, panel);
+          return parseGeminiSuggestions(retryData);
+        }
+      }
+
       async function fetchGeminiSuggestions() {
         const now = Date.now();
         if (now - lastAiSuggestAt < AI_SUGGEST_DEBOUNCE_MS) return;
@@ -1859,7 +1894,8 @@
 한국어 문장: "${korText}"
 이 표현을 ${langCfg.name}로 번역하는 자연스러운 옵션을 3가지 제시하세요.
 각 옵션은 뉘앙스가 조금씩 달라야 합니다 (격식/비격식, 공손/친근 등).
-반드시 아래 JSON 형식으로만 응답하세요. 설명 없이 JSON만:
+반드시 아래 JSON 형식으로만 응답하세요. 설명 없이 JSON만.
+reading 필드에는 쌍따옴표나 백슬래시 쓰지 마세요:
 [
   {
     "original": "${langCfg.name} 원문",
@@ -1869,26 +1905,7 @@
 ]`;
 
         try {
-          let data;
-          try {
-            data = await callGeminiApi(prompt);
-          } catch (err) {
-            if (err.status === 429) {
-              list.innerHTML = `<div class="ai-error-msg">⏳ 잠시 후 자동 재시도 중...</div>`;
-              panel.classList.add("visible");
-              await new Promise((resolve) => setTimeout(resolve, 5000));
-              data = await callGeminiApi(prompt);
-            } else {
-              throw err;
-            }
-          }
-
-          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-          const jsonStr = rawText
-            .replace(/```json\n?/g, "")
-            .replace(/```\n?/g, "")
-            .trim();
-          const suggestions = JSON.parse(jsonStr);
+          const suggestions = await fetchGeminiSuggestionsData(prompt, list, panel);
 
           list.innerHTML = "";
           suggestions.forEach((s) => {
